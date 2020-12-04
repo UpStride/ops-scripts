@@ -9,3 +9,16 @@ handy scripts to patch developers or production environments
 ```bash
 curl https://raw.githubusercontent.com/UpStride/upstride-scripts/main/set-azurefile/install-azure-driver.sh | sudo bash
 ```
+- cli :
+  - `--clean` cleanup the azurefile daemon from systemctl
+  - `--dry-run` check all stages without doing anything dramatic
+
+
+## cronjobs
+- user story :<br/>
+*I want to renew letsencrypt certificate automatically*
+- installation :
+```bash
+curl https://raw.githubusercontent.com/UpStride/upstride-scripts/main/letsencrypt/renew-certs.sh | sudo bash
+```
+
