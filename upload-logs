@@ -1,0 +1,80 @@
+#!/bin/bash
+
+ENDPOINT_URL="https://us-east1.watch.upstride.io/namespaces"
+
+function usage() {
+    echo -e "
+Usage:
+
+  sudo upload_logs -u username -p password -c container_name -n namespace
+
+  Retrieve and upload a docker container log to the specific endpoint <$ENDPOINT_URL>
+  Arguments:
+   - u: login's username
+   - p: login's password or access token
+   - c: container's name
+   - n: storage's namespace
+  "
+}
+
+#No arguments display usage
+[ $# == 0 ] && usage && exit 0
+
+echo  -e "\n\033[1;33m *** enter"
+
+# check dependencies
+echo -e  "\033[1;32m  step: check dependencies \033[0m"
+uname > /dev/null  ||   { echo -e "\033[1;31m  x incompatible OS system \033[0m\n" && usage && exit 2; }
+docker version > /dev/null  ||   { echo -e "\033[1;31m  x missing docker \033[0m\n" && usage && exit 2; }
+curl --version > /dev/null ||   { echo -e "\033[1;31m  x missing curl \033[0m\n" && usage && exit 2; }
+
+# check root
+echo -e "\033[1;32m  step: check root privileges \033[0m"
+[ $(id -u) -eq 0 ] || \
+  { echo -e "\033[1;31m  x must be run with root privileges \033[0m\n" && usage && exit 2; }
+
+
+# read args
+while getopts u:p:c:n: flag
+do
+    case "${flag}" in
+        u) username=${OPTARG};;
+        p) password=${OPTARG};;
+        c) container_name=${OPTARG};;
+        n) namespace=${OPTARG};;
+    esac
+done
+
+echo -e "\033[1;32m  step: check arguments \033[0m"
+[ -z "$username" ] &&   { echo -e "\033[1;31m  x missing username \033[0m\n" && usage && exit 2; }
+[ -z "$password" ] &&   { echo -e "\033[1;31m  x missing password \033[0m\n" && usage && exit 2; }
+[ -z "$container_name" ] &&   { echo -e "\033[1;31m  x missing container_name \033[0m\n" && usage && exit 2; }
+[ -z "$namespace" ] &&   { echo -e "\033[1;31m  x missing storage_name \033[0m\n" && usage && exit 2; }
+
+echo -e "\033[1;32m  step: check login \033[0m"
+code=$(curl -XPOST -u "$username:$password" --url "$ENDPOINT_URL/$namespace" \
+      --write-out "%{http_code}\n" --silent --output /dev/null)
+[ "$code" -eq 401 ] &&  { echo -e "\033[1;31m  x wrong login username/password \033[0m\n" && exit 2; }
+
+echo -e "\033[1;32m  step: check container \033[0m"
+# shellcheck disable=SC2116
+container_id=$(docker inspect --format="{{.Id}}" "$container_name") && \
+logfiles=$(ls /var/lib/docker/containers/"$container_id"/*.log) \
+||  { echo -e "\033[1;31m  x container logs not found \033[0m\n" && exit 2; }
+
+echo -e "\033[1;32m  step: pushing log's file \033[0m"
+path=logs/$(date '+%Y-%m-%d')/$container_name/$(date '+%H-%M')
+echo -e "\033[0;33m  + path: $namespace/$path \033[0m"
+for log in "${logfiles[@]}"; do
+  code=$(curl -XPOST -u "$username:$password" --url "$ENDPOINT_URL/$namespace/files/?path=$path" \
+        -F file=@"$log" --write-out "%{http_code}\n" --silent --output /dev/null)
+  [ "$code" -ne 200 ] &&  \
+  { echo -e "\033[1;31m  x something went wrong during upload: error_code=$code \033[0m\n"; } && \
+  STATUS=FAILED
+done
+echo -e "\033[0;33m  + status: SUCCESS \033[0m"
+
+echo  -e "\033[1;33m *** exit\n" && exit 0
+
+
+
