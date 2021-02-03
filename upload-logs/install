@@ -1,0 +1,11 @@
+#!/bin/bash
+# install the log main script
+curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/upload-logs/main -o upstride-logs
+chmod upstride-logs
+sudo mv upstride-logs /usr/bin
+
+# set the cronjob
+sudo cat >> /etc/cron.hourly/upstride-logs <<EOL
+#!/bin/bash
+/usr/bin/upstride-logs -u dummy@company.com -p access_token -n production-logs -c upstride-engine
+EOL
