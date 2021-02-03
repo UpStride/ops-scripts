@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # CREDENTIALS 
-USER=dummy@company.com
-ACCESS_TOKEN=access_token
-NAMESPACE=production-logs
+#USER=dummy@company.com
+#ACCESS_TOKEN=access_token
+#NAMESPACE=production-logs
 
 # install the log main script
 ! whereis upstride-logs && \
@@ -12,10 +12,10 @@ sudo mv upstride-logs /usr/bin &&\
 chmod +x /usr/bin/upstride-logs 
 
 # TEST CONFIGURATION
-! upstride-logs --dry-run && exit 2
+#! upstride-logs --dry-run && exit 2
 
 # set the cronjob
-sudo cat > /etc/cron.hourly/upstride-logs <<EOL
-#!/bin/bash
-/usr/bin/upstride-logs -u dummy@company.com -p access_token -n production-logs -c upstride-engine
-EOL
+# sudo cat > /etc/cron.hourly/upstride-logs <<EOL
+##!/bin/bash
+#/usr/bin/upstride-logs -u dummy@company.com -p access_token -n production-logs -c upstride-engine
+#EOL
