@@ -7,7 +7,7 @@ handy scripts to patch developers or production environments
 *I want to dump my data in a datalake when I am using a azure's virtual machine and docker.*
 - installation :
 ```bash
-curl https://raw.githubusercontent.com/UpStride/upstride-scripts/main/set-azurefile/install-azure-driver.sh | sudo bash
+curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/set-azurefile/install-azure-driver.sh | sudo bash
 ```
 - cli :
   - `--clean` cleanup the azurefile daemon from systemctl
