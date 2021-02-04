@@ -1,21 +1,26 @@
 #!/bin/bash
 
-# CREDENTIALS 
-#USER=dummy@company.com
-#ACCESS_TOKEN=access_token
-#NAMESPACE=production-logs
+echo  -e "\n\033[1;33m *** enter\033[0m"
 
+
+# check root
+echo -e "\033[1;32m  step: check root privileges \033[0m"
+[ $(id -u) -eq 0 ] || \
+  { echo -e "\033[1;31m  x must be run with root privileges \033[0m\n" && usage && exit 2; }
+  
 # install the log main script
-! whereis upstride-logs && \
+echo -e "\033[1;32m  step: download script from <github> to <upstride-logs> \033[0m"
 curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/upload-logs/main -o upstride-logs --silent > /dev/null && \
+echo -e "\033[1;32m  step: install <upstride-logs>\033[0m" &&\
 sudo mv upstride-logs /usr/bin &&\
 chmod +x /usr/bin/upstride-logs 
 
-# TEST CONFIGURATION
-#! upstride-logs --dry-run && exit 2
 
 # set the cronjob
 # sudo cat > /etc/cron.hourly/upstride-logs <<EOL
 ##!/bin/bash
 #/usr/bin/upstride-logs -u dummy@company.com -p access_token -n production-logs -c upstride-engine
 #EOL
+
+echo  -e "\033[1;33m *** exit\033[0m\n"
+
