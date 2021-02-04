@@ -1,6 +1,8 @@
 #!/bin/bash
 
 ENDPOINT_URL="https://us-east1.watch.upstride.io/namespaces"
+#ENDPOINT_URL="https://localhost/namespaces"
+
 MAXIMUM_LOGS=100
 
 function usage() {
@@ -29,9 +31,11 @@ do
         i) imageName=${OPTARG};;
         d) directory=${OPTARG};;
         n) namespace=${OPTARG};;
-        h | *)
+        h)
           usage
           exit 0
+          ;;
+        *)
           ;;
     esac
 done
@@ -120,7 +124,7 @@ if [ -n "$container_name" ]; then
   echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
   for log in $(find_logs -c "$container_name"); do
     code=$(curl -XPOST -u "$username:$password" --url "$ENDPOINT_URL/$namespace/files/?path=$path" \
-          -F file=@"$log" --write-out "%{http_code}\n" --silent --output /dev/null)
+          -F file=@"$log" --write-out "%{http_code}\n" --silent --output /dev/null --insecure)
     [ "$code" -ne 200 ] &&  \
     { echo -e "\033[1;31m  x something went wrong during upload: log=$log \033[0m"; } && \
     STATUS=FAILED ||\
