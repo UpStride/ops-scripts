@@ -54,13 +54,16 @@ function find_logs() {
   #echo "i=$image,d=$directory,c=$container"
   [ -n "$container" ] && \
     container_id=$(docker inspect --format="{{.Id}}" "$container") && \
-    logfiles+=$(find /var/lib/docker/containers/"$container_id"/  -maxdepth 2 -name '*.log')
+    logfiles+=$(find /var/lib/docker/containers/"$container_id"/  -maxdepth 2 \
+                  -name '*.log' -o -name 'log' -o -name '*.log.*' )
   [ -n "$directory" ] && [ -d "$directory" ] &&\
-    logfiles+=$(find "$directory"  -maxdepth 2 -name '*.log')
+    logfiles+=$(find "$directory"  -maxdepth 2 \
+                  -name '*.log' -o -name 'log' -o -name '*.log.*' )
   [ -n "$image" ] &&\
     short_uuid=$(docker ps --format {{.ID}} --filter "ancestor=$image") &&\
     long_uuid=$(docker inspect --format="{{.Id}}" "$short_uuid")  &&\
-    logfiles+=$(find /var/lib/docker/containers/"$long_uuid"/  -maxdepth 2 -name '*.log')
+    logfiles+=$(find /var/lib/docker/containers/"$long_uuid"/  -maxdepth 2 \
+                  -name '*.log' -o -name 'log' -o -name '*.log.*' )
   echo "$logfiles"
 }
 
