@@ -9,16 +9,16 @@ function usage() {
     echo -e \
 "Usage:
 
-  sudo upload_logs -u username -p password -n namespace -i image_name [-d directory -c container_name]
+  sudo upstride-logs -u username -p password -i image_name [-d directory -c container_name -n namespace]
 
   Retrieve and upload a docker container log to the specific endpoint <$ENDPOINT_URL>
   Arguments:
-   - u: login's username
-   - p: login's password or access token
-   - d: directory
-   - c: container's name
-   - i: image's name
-   - n: storage's namespace
+   - u: login's username [required]
+   - p: login's password or access token [required]
+   - d: directory [optional]
+   - c: container's name [optional]
+   - i: image's name [optional]
+   - n: remote storage's namespace [optional][default::production]
   "
 }
 
@@ -31,11 +31,9 @@ do
         i) imageName=${OPTARG};;
         d) directory=${OPTARG};;
         n) namespace=${OPTARG};;
-        h)
+        h| *)
           usage
           exit 0
-          ;;
-        *)
           ;;
     esac
 done
