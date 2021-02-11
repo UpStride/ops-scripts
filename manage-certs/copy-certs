@@ -1,0 +1,36 @@
+#!/bin/bash
+
+function usage() {
+    echo -e \
+"Usage:
+
+  sudo copy-certs -v volume -d dns
+
+  Retrieve and upload a docker container log to the specific endpoint <$ENDPOINT_URL>
+  Arguments:
+   - v: volume
+   - d: domain name
+  "
+}
+
+while getopts :v:d: flag
+do
+    case "${flag}" in
+        v) volume=${OPTARG};;
+        d) domain=${OPTARG};;
+        h)
+          usage
+          exit 0
+          ;;
+        *)
+          ;;
+    esac
+done
+
+
+{ docker rm helper || echo no helper; } && \
+ docker pull busybox && \
+ docker run -v "$volume":/certs --name helper busybox true && \
+ docker cp -L /etc/letsencrypt/live/"$domain"/fullchain.pem helper:/certs && \
+ docker cp -L /etc/letsencrypt/live/"$domain"/privkey.pem helper:/certs && \
+ docker rm helper
