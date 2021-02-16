@@ -53,7 +53,7 @@ function find_logs() {
   logfiles=()
   #echo "i=$image,d=$directory,c=$container"
   [ -n "$container" ] && \
-    container_id=$(docker inspect --format="{{.Id}}" "$container") && \
+    container_id=$(docker inspect --format="{{.Id}}" "$container" 2>/dev/null) && \
     logfiles+=$(find /var/lib/docker/containers/"$container_id"/  -maxdepth 2 \
                   -name '*.log' -o -name 'log' -o -name '*.log.*' )
   if [ -n "$directory" ]; then
@@ -65,7 +65,7 @@ function find_logs() {
   fi
   [ -n "$image" ] &&\
     short_uuid=$(docker ps --format {{.ID}} --filter "ancestor=$image") &&\
-    long_uuid=$(docker inspect --format="{{.Id}}" "$short_uuid")  &&\
+    long_uuid=$(docker inspect --format="{{.Id}}" "$short_uuid" 2>/dev/null)  &&\
     logfiles+=$(find /var/lib/docker/containers/"$long_uuid"/  -maxdepth 2 \
                   -name '*.log' -o -name 'log' -o -name '*.log.*' )
   echo "$logfiles"
@@ -100,16 +100,18 @@ echo -e "\033[1;32m  step: check arguments \033[0m"
 [ -z "$namespace" ] &&  namespace="production"
 
 echo -e "\033[1;32m  step: check login \033[0m"
-code=$(curl -XPOST -u "$username:$password" --url "$ENDPOINT_URL/$namespace" \
+code=$(curl -XPOST -u "$username:$password" --connect-timeout 3 --url "$ENDPOINT_URL/$namespace" \
       --write-out "%{http_code}\n" --silent --output /dev/null)
 [ "$code" -eq 401 ] &&  { echo -e "\033[1;31m  x wrong login username/password \033[0m\n" && exit 2; }
+[ -z "$code" ] &&  { echo -e "\033[1;31m  x issue with connection to the backend \033[0m\n" && exit 2; }
 
 echo -e "\033[1;32m  step: pushing log's files \033[0m"
 path=()
-STATUS="SUCCESS"
+STATUS="FAILED"
 declare -i total=0
 
 if [ -n "$directory" ]; then
+  STATUS="SUCCESS"
   path=logs/$(date '+%Y-%m-%d')/raw/$(date '+%H-%M')
   echo -e "\033[0;33m  + path: $namespace/$path \033[0m"
   for log in $(find_logs -d "$directory"); do
@@ -124,6 +126,7 @@ if [ -n "$directory" ]; then
 fi
 
 if [ -n "$container_name" ]; then
+  STATUS="SUCCESS"
   path=logs/$(date '+%Y-%m-%d')/docker/$container_name/$(date '+%H-%M')
     echo -e "\033[0;33m  + source docker: $container_name \033[0m"
   echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
@@ -139,6 +142,7 @@ if [ -n "$container_name" ]; then
 fi
 
 if [ -n "$imageName" ]; then
+  STATUS="SUCCESS"
   path=logs/$(date '+%Y-%m-%d')/docker/$imageName/$(date '+%H-%M')
   echo -e "\033[0;33m  + source docker: $imageName \033[0m"
   echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
