@@ -19,6 +19,7 @@ function usage() {
    - c: container's name [optional]
    - i: image's name [optional]
    - n: remote storage's namespace [optional][default::production]
+   --dry-run: display logs location without doing anything
   "
 }
 
@@ -31,10 +32,12 @@ do
         i) imageName=${OPTARG};;
         d) directory=${OPTARG};;
         n) namespace=${OPTARG};;
-        h| *)
+        h)
           usage
           exit 0
           ;;
+        *)
+          dry_run='yes';;
     esac
 done
 
@@ -90,15 +93,14 @@ echo -e "\033[1;32m  step: check root privileges \033[0m"
 
 
 # read args
-
-
 echo -e "\033[1;32m  step: check arguments \033[0m"
-[ -z "$username" ] &&   { echo -e "\033[1;31m  x missing username \033[0m\n" && usage && exit 2; }
-[ -z "$password" ] &&   { echo -e "\033[1;31m  x missing password \033[0m\n" && usage && exit 2; }
+[ -z "$dry_run" ] && [ -z "$username" ] &&   { echo -e "\033[1;31m  x missing username \033[0m\n" && usage && exit 2; }
+[ -z "$dry_run" ] && [ -z "$password" ] &&   { echo -e "\033[1;31m  x missing password \033[0m\n" && usage && exit 2; }
 [ -z "$container_name""$imageName""$directory" ] &&\
    { echo -e "\033[1;31m  x missing one of directory, image_name or container_name \033[0m\n" && usage && exit 2; }
 [ -z "$namespace" ] &&  namespace="production"
 
+if [ -z "$dry_run" ]; then
 echo -e "\033[1;32m  step: check login \033[0m"
 code=$(curl -XPOST -u "$username:$password" --connect-timeout 3 --url "$ENDPOINT_URL/$namespace" \
       --write-out "%{http_code}\n" --silent --output /dev/null)
@@ -106,6 +108,9 @@ code=$(curl -XPOST -u "$username:$password" --connect-timeout 3 --url "$ENDPOINT
 [ -z "$code" ] &&  { echo -e "\033[1;31m  x issue with connection to the backend \033[0m\n" && exit 2; }
 
 echo -e "\033[1;32m  step: pushing log's files \033[0m"
+else
+  echo -e "\033[0;33m  + dry-run: $dry_run \033[0m"
+fi
 path=()
 STATUS="FAILED"
 declare -i total=0
@@ -113,8 +118,10 @@ declare -i total=0
 if [ -n "$directory" ]; then
   STATUS="SUCCESS"
   path=logs/$(date '+%Y-%m-%d')/raw/$(date '+%H-%M')
-  echo -e "\033[0;33m  + path: $namespace/$path \033[0m"
+  [ -z "$dry_run" ] && echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
   for log in $(find_logs -d "$directory"); do
+    [ -n "$dry_run" ] && echo -e "\033[0;33m  + log: $log \033[0m" \
+        && total+=1 && continue
     code=$(curl -XPOST -u "$username:$password" --url "$ENDPOINT_URL/$namespace/files/?path=$path" \
           -F file=@"$log" --write-out "%{http_code}\n" --silent --output /dev/null)
     [ "$code" -ne 200 ] &&  \
@@ -129,8 +136,10 @@ if [ -n "$container_name" ]; then
   STATUS="SUCCESS"
   path=logs/$(date '+%Y-%m-%d')/docker/$container_name/$(date '+%H-%M')
     echo -e "\033[0;33m  + source docker: $container_name \033[0m"
-  echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
+  [ -z "$dry_run" ] && echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
   for log in $(find_logs -c "$container_name"); do
+    [ -n "$dry_run" ] && echo -e "\033[0;33m  + log: $log \033[0m" \
+        && total+=1 && continue
     code=$(curl -XPOST -u "$username:$password" --url "$ENDPOINT_URL/$namespace/files/?path=$path" \
           -F file=@"$log" --write-out "%{http_code}\n" --silent --output /dev/null --insecure)
     [ "$code" -ne 200 ] &&  \
@@ -145,8 +154,10 @@ if [ -n "$imageName" ]; then
   STATUS="SUCCESS"
   path=logs/$(date '+%Y-%m-%d')/docker/$imageName/$(date '+%H-%M')
   echo -e "\033[0;33m  + source docker: $imageName \033[0m"
-  echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
+  [ -z "$dry_run" ] && echo -e "\033[0;33m  + remote path: $namespace/$path \033[0m"
   for log in $(find_logs -i "$imageName"); do
+    [ -n "$dry_run" ] && echo -e "\033[0;33m  + log: $log \033[0m" \
+        && total+=1 && continue
     code=$(curl -XPOST -u "$username:$password" --url "$ENDPOINT_URL/$namespace/files/?path=$path" \
           -F file=@"$log" --write-out "%{http_code}\n" --silent --output /dev/null)
     [ "$code" -ne 200 ] &&  \
