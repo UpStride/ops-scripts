@@ -169,8 +169,8 @@ if [ -n "$imageName" ]; then
 fi
 
 echo -e "\033[0;33m  + total: $total \033[0m"
-[ $STATUS == "SUCCESS" ] && echo -e "\033[0;33m  + status: $STATUS \033[0m" ||
-  echo -e "\033[0;31m  + status: $STATUS \033[0m"
+[ $STATUS == "SUCCESS" -a $total -gt 0 ] && echo -e "\033[0;33m  + status: $STATUS \033[0m" ||
+  echo -e "\033[0;31m  + status: FAILED \033[0m"
 
 echo  -e "\033[1;33m *** exit\n" && exit 0
 
