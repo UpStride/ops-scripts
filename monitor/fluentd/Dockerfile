@@ -1,0 +1,6 @@
+# fluentd/Dockerfile
+FROM fluent/fluentd:edge-debian
+USER root
+RUN ["gem", "install", "fluent-plugin-elasticsearch", "--version", "1.9.2"]
+RUN ["gem", "install", "elasticsearch", "--version", "7.5.0.pre.pre"]
+RUN ["gem", "install", "fluent-plugin-secure-forward"]

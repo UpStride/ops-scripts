@@ -1,0 +1,45 @@
+version: '3.2'
+
+services:
+
+  upstride:
+    restart: always
+# 
+# Change here >>>>>> 
+    container_name: upstride-client
+    image: nginx:latest
+# <<<<<<
+#
+    networks:
+      upstride_vnet:
+        ipv4_address: 172.16.0.2
+    logging:
+      driver: fluentd
+      options:
+        tag: "docker.onprem.{{.Name}}"
+        fluentd-address: "tcp://localhost:24230"
+    depends_on:
+      - monitoring-agent
+
+  monitoring-agent:
+    #build:
+    #  context: ./fluentd
+    #  dockerfile: Dockerfile-agent
+    image: registryupstrideprod.azurecr.io/ops/monitoring/image:agent-1.0.0
+    container_name: monitoring-agent
+    ports:
+      - "24230:24225"
+      - "24230:24225/udp"
+    networks:
+      upstride_vnet:
+        ipv4_address: 172.16.0.3
+        
+
+networks:
+  upstride_vnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24
+
+
