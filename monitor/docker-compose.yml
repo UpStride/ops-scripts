@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.3'
 
 services:
 
@@ -6,7 +6,15 @@ services:
     restart: always
 # Change here >>>>>> 
     container_name: upstride-client
-    image: nginx:latest
+    image: tensorflow/tensorflow:latest-gpu
+    command: python -c "import tensorflow as tf;tf.test.gpu_device_name()"
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['0', '3']
+            capabilities: [gpu]
 # <<<<<<
     networks:
       upstride_vnet:
@@ -15,7 +23,7 @@ services:
       driver: fluentd
       options:
         tag: "docker.onprem.{{.Name}}"
-        fluentd-address: "tcp://localhost:24230"
+        fluentd-address: "tcp://0.0.0.0:24230"
     depends_on:
       - monitoring-agent
 
