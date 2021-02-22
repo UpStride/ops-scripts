@@ -7,6 +7,7 @@ handy scripts to patch developers or production environments
 - requirements : 
 	- dockerd
 	- docker-compose
+	- user/password to preprod registry `registryupstrideprod.azurecr.io`
 
 - installation :
 
