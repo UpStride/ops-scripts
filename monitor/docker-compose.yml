@@ -27,7 +27,7 @@ services:
       - monitoring-agent
 
   monitoring-agent:
-    image: registryupstrideprod.azurecr.io/ops/monitoring/image:agent-1.0.0
+    image: registryupstrideprod.azurecr.io/ops/monitoring/image:agent-1.0.1
     container_name: monitoring-agent
     ports:
       - "24230:24225"
