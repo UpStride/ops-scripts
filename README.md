@@ -3,13 +3,24 @@ handy scripts to patch developers or production environments
 
 ## monitoring
 - user story :<br/>
-*I want to push log from standard output from a docker container to a storage in the cloud managed by upstride.*
+*I want to push log of standard output of my docker container to upstride's monitoring.*
 - requirements : 
 	- dockerd
 	- docker-compose
 	- user/password to preprod registry `registryupstrideprod.azurecr.io`
 
 - installation :
+
+**install docker-compose**
+```bash
+pip install docker-compose
+```
+
+**connect to the preprod registry**
+```bash
+pip install docker-compose
+docker login -u username - p password  registryupstrideprod.azurecr.io
+```
 
 **download docker-compose yaml**
 ```bash
