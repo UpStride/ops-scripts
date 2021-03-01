@@ -27,7 +27,7 @@ services:
       - monitoring-agent
 
   monitoring-agent:
-    image: us.registry.upstride.io/ops/monitoring/image:agent-1.0.0
+    image: registry.us.upstride.io/ops/monitoring/image:agent-1.0.0
     container_name: monitoring-agent
     ports:
       - "24230:24225"
