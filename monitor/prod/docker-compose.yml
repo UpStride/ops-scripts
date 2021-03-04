@@ -32,6 +32,10 @@ services:
     restart: always
     image: registry.us.upstride.io/ops/monitoring/image:agent-1.0.0
     container_name: monitoring-agent
+    logging:
+      options:
+        max-size: "5m"
+        max-file: "5"
     ports:
       - "24230:24225"
       - "24230:24225/udp"
