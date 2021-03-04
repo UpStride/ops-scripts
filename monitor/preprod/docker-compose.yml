@@ -21,7 +21,7 @@ services:
     logging:
       driver: fluentd
       options:
-        tag: "docker.uat.{{.Name}}"
+        tag: "docker.uat.{{.Name}}.{{.ImageName}}"
         fluentd-address: "tcp://0.0.0.0:24230"
         mode: non-blocking
         max-buffer-size: 10m
