@@ -1,0 +1,20 @@
+version: '3.2'
+
+services:
+
+  monitoring-agent-mem:
+    image: registry.upstride.io/arcure/monitoring:agent-mem-1.0.0
+    container_name: client101-mem
+    networks:
+      upstride_vnet:
+        ipv4_address: 172.18.0.4
+        
+
+networks:
+  upstride_vnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+
+
