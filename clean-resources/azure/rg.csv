@@ -1,0 +1,21 @@
+Resource Group,Owner,Purpose,Action
+arcure-test1_group,?,external testing,Delete
+arcure-test2_group,?,external testing,Delete
+arcure-test2_group_07301340,?,external testing,Delete
+arcure-test_group,?,external testing,Delete
+cifar-benchmarks_group,?,,Delete
+cifar-benchmarks_group_08260725,?,,Delete
+engine-benchmarks_group,?,,Delete
+jakub-group,Jakub,,Delete
+maxim_group,Maxim,,Delete
+maxim_group_08141602,Maxim,,Delete
+mohammad-tests,Mohammad,,Delete
+philipe-group,Philipe,,Delete
+philipe-volta_group,Philipe,,Delete
+test-maxim_group,Maxim,,Delete
+test-maxim_group_08061604,Maxim,,Delete
+test-maxim_group_08061613,Maxim,,Delete
+tutorial-azure,?,,Ask owner
+upstride-pytorch-plugin,Philipe,,Delete
+upstride-static,Marcel,store company images (logos),In use
+upstride-vm-images,Marcel,vm images for terraform,Delete

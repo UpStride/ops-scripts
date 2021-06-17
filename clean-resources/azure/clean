@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+function usage() {
+    echo -e \
+"Usage:
+  clean -r resources_group_csv
+  loop and destroy all resources group listed in a csv files.
+  Arguments:
+   - r: resources group csv file with headers [Resource Group; Action]
+   	resources will be deleted only if Action=delete
+  "
+}
+
+source "$(dirname $0)/shared/args.sh"
+
+echo -e "=== cleanup Azure"
+
+echo -e "+ dependencies checks"
+
+#Dependencies check
+python3 --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency python3\n:  sudo apt install python3 python3-pip"; exit 2; }
+az version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency azure-cli\n:  pip install azure-cli"; exit 2; }
+
+DELETE_LIST=$(python3 "$(dirname $0)/shared/scripts.py" read -s "$CSV" --filter Delete)
+
+declare -i TOTAL=0
+
+
+echo -e "+ removal loop"
+
+for RESOURCE in ${DELETE_LIST[*]}
+  do
+    echo -e " . deleting resource group ... $RESOURCE"
+    az group delete --name $RESOURCE -y
+    TOTAL=$TOTAL+1
+  done
+
+echo -e "=== total=$TOTAL"
+
+echo -e "=== exit"
+
