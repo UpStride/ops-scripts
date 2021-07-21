@@ -1,6 +1,9 @@
 # upstride-scripts
 handy scripts to patch developers or production environments
 
+
+
+
 ## monitoring
 - user story :<br/>
 *I want to push log of standard output of my docker container to upstride's monitoring.*
@@ -48,7 +51,7 @@ curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/set-azurefile/i
   - `--clean` cleanup the azurefile daemon from systemctl
   - `--dry-run` check all stages without doing anything dramatic
 
-### cronjobs
+## cronjobs
 - user story :<br/>
 *I want to renew letsencrypt certificate automatically*
 - installation :
@@ -56,7 +59,7 @@ curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/set-azurefile/i
 curl https://raw.githubusercontent.com/UpStride/upstride-scripts/main/letsencrypt/renew-certs.sh | sudo bash
 ```
 
-## services
+## upload script
 - user story :<br/>
 *I want to upload docker container log to upstride data store.*
 ```bash
