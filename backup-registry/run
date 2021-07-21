@@ -40,7 +40,7 @@ echo -e "+ upload loop"
 
 for DOCKER in ${LIST[*]}
   do
-    grep -Fxq "$DOCKER" $SUMMARY && echo " . skipping docker ... $DOCKER" && continue
+    grep -q "$DOCKER" $SUMMARY && echo " . skipping docker ... $DOCKER" && continue
     PARSED=$(sed 's/\:/%3A/g' <<< $(sed 's/\//%2F/g' <<<"$DOCKER"))
     echo -e " . pulling docker ... $DOCKER"
     docker pull $REGISTRY_HOST/$DOCKER > /dev/null
