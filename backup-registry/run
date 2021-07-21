@@ -3,15 +3,18 @@
 function usage() {
     echo -e \
 "Usage:
-  run -n registry_name -h registry_host
-  find all docker container into the registry.
+  run -h registry_host -g google_drive -t access_token
+  find all docker container into the registry and upload it to a google drive repository.
   Arguments:
-   - n: registry name or the registry dns.
    - h: registry host.
+   - g: google drive folder ID ex: 1YWFivfLRgaGw1KTKUpR3B6uZc2Gbjg4w
+   - t: google drive access token ex: ya29.a0ARrdaM90MMwDwRQAwVRLijn806-M_IVAPYBKl97eI0s7Niz0IzMyr1SMrxmUD5lItyNqhb-9hlJTVe49NVLJz2hCKztsgXCp45wgl4iA7Oysxr0iOuIlevGFpFs7bShjd5Ua13wWzgEIXMoJd0ifKdt5aZRP
   "
 }
 
 source "$(dirname $0)/shared/args.sh"
+
+source "$(dirname $0)/shared/upload.sh"
 
 echo -e "=== cleanup Azure"
 
@@ -28,6 +31,10 @@ LIST=$(python3 "$(dirname $0)/shared/scripts.py" list --host REGISTRY_HOST)
 
 declare -i TOTAL=0
 
+SUMMARY="summary.csv"
+
+echo "DOCKER,TARBALL,CHECKSUM" > $SUMMARY
+
 echo -e "+ upload loop"
 
 for DOCKER in ${LIST[*]}
@@ -36,15 +43,22 @@ for DOCKER in ${LIST[*]}
     echo -e " . pulling docker ... $DOCKER"
     docker pull $REGISTRY_HOST/$DOCKER > /dev/null
     echo -e " . building tarball ... $PARSED.tar"
-    docker save $REGISTRY_NAME/$DOCKER -o $PARSED.tar
+    docker save $REGISTRY_HOST/$DOCKER -o $PARSED.tar
     echo -e " . uploading tarball ... $REGISTRY_NAME/$DOCKER"
+    upload $PARSED.tar
     echo -e " . cleaning ... "
-    docker image rm $REGISTRY_NAME/$DOCKER  > /dev/null
+    echo "$REGISTRY_HOST/$DOCKER,$PARSED.tar,$(sha256sum $PARSED.tar|cut -d ' ' -f1)" >> $SUMMARY
+    docker image rm $REGISTRY_HOST/$DOCKER  > /dev/null
     rm  $PARSED.tar
     TOTAL=$TOTAL+1
   done
 
 echo -e "+ total=$TOTAL"
+
+echo -e "+ pushing checksum file"
+upload $SUMMARY
+cat $SUMMARY
+#rm $SUMMARY
 
 echo -e "=== exit"
 

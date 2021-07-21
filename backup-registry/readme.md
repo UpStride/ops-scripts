@@ -21,5 +21,5 @@ export DOCKER_USERNAME=/tarball/registry
 
 **run the script**
 ```bash
-bash backup-registry/run
+bash backup-registry/run -n localhost:5000 -h localhost:5000
 ```
