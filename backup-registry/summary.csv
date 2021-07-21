@@ -1,4 +1,0 @@
-DOCKER,TARBALL,CHECKSUM
-localhost:5000/test/busybox:1,test%2Fbusybox%3A1.tar,b54a6bac828b6c65c7bc646866dc33f2ad13f753909014e546f2f8cb2d9d469c
-localhost:5000/test/busybox:2,test%2Fbusybox%3A2.tar,f1e0ac14b6f7eda7f91f79d630a5a04a5234eb1b029718d299d6782251b6de21
-localhost:5000/test/busybox2:1,test%2Fbusybox2%3A1.tar,7a9a046b825c8a09bf88532f423c38a1ac8daa2720b73d953a42cc990d686fee
