@@ -47,11 +47,11 @@ for DOCKER in ${LIST[*]}
     echo -e " . building tarball ... $PARSED.tar"
     docker save $REGISTRY_HOST/$DOCKER -o $PARSED.tar
     echo -e " . uploading tarball ... $REGISTRY_NAME/$DOCKER"
-    upload $PARSED.tar
+    upload "$PARSED.tar"
     echo -e " . cleaning ... "
     echo "$REGISTRY_HOST/$DOCKER,$PARSED.tar,$(sha256sum $PARSED.tar|cut -d ' ' -f1)" >> $SUMMARY
-    docker image rm $REGISTRY_HOST/$DOCKER  > /dev/null
-    rm  $PARSED.tar
+    docker image rm "$REGISTRY_HOST/$DOCKER"  > /dev/null
+    rm  "$PARSED.tar"
     TOTAL=$TOTAL+1
   done
 
@@ -59,8 +59,7 @@ echo -e "+ total=$TOTAL"
 
 echo -e "+ pushing checksum file"
 upload $SUMMARY
-cat $SUMMARY
-#rm $SUMMARY
+rm $SUMMARY
 
 echo -e "=== exit"
 
