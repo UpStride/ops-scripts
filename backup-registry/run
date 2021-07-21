@@ -16,7 +16,7 @@ source "$(dirname $0)/shared/args.sh"
 
 source "$(dirname $0)/shared/upload.sh"
 
-echo -e "=== cleanup Azure"
+echo -e "=== archive Registry"
 
 echo -e "+ dependencies checks"
 
@@ -34,12 +34,13 @@ declare -i TOTAL=0
 
 SUMMARY="summary.csv"
 
-echo "DOCKER,TARBALL,CHECKSUM" > $SUMMARY
+! [ -f $SUMMARY ] && echo "DOCKER,TARBALL,CHECKSUM" > $SUMMARY
 
 echo -e "+ upload loop"
 
 for DOCKER in ${LIST[*]}
   do
+    grep -Fxq "$DOCKER" $SUMMARY && echo " . skipping docker ... $DOCKER" && continue
     PARSED=$(sed 's/\:/%3A/g' <<< $(sed 's/\//%2F/g' <<<"$DOCKER"))
     echo -e " . pulling docker ... $DOCKER"
     docker pull $REGISTRY_HOST/$DOCKER > /dev/null
