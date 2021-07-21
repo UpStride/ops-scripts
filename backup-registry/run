@@ -27,6 +27,7 @@ docker --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency doc
 #Env check
 #[ -n "$REGISTRY_NAME" ] || { echo -e "xxx missing REGISTRY_NAME in the ENV. \nDo:\nexport REGISTRY_NAME=your.registry.name"; exit 2; }
 
+echo -e "+ listing docker images"
 LIST=$(python3 "$(dirname $0)/shared/scripts.py" list --host REGISTRY_HOST)
 
 declare -i TOTAL=0
