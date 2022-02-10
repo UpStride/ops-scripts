@@ -3,63 +3,39 @@
 function usage() {
     echo -e \
 "Usage:
-  run -h registry_host -g google_drive -t access_token
-  find all docker container into the registry and upload it to a google drive repository.
+  run -u urls_list -d target_directory
+  download youtube videos from urls.
   Arguments:
-   - h: registry host.
-   - g: google drive folder ID ex: 1YWFivfLRgaGw1KTKUpR3B6uZc2Gbjg4w
-   - t: google drive access token ex: ya29.a0ARrdaM90MMwDwRQAwVRLijn806-M_IVAPYBKl97eI0s7Niz0IzMyr1SMrxmUD5lItyNqhb-9hlJTVe49NVLJz2hCKztsgXCp45wgl4iA7Oysxr0iOuIlevGFpFs7bShjd5Ua13wWzgEIXMoJd0ifKdt5aZRP
+   - u: list of youtube urls.
   "
 }
 
 source "$(dirname $0)/shared/args.sh"
 
-source "$(dirname $0)/shared/upload.sh"
+echo -e "=== download videos"
 
-echo -e "=== archive Registry"
-
-echo -e "+ dependencies checks"
+echo -e "+ dependencies check ..."
 
 #Dependencies check
-python3 --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency python3\n:  sudo apt install python3"; exit 2; }
-docker --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency docker\n:  curl -fsSL https://get.docker.com | bash"; exit 2; }
+python --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency python3\n:  sudo apt install python"; exit 2; }
+ffmpeg -version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency ffmpeg\n"; exit 2; }
+youtube-dl --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency youtube-dl\n:  pip install youtube-dl"; exit 2; }
 
-#Env check
-#[ -n "$REGISTRY_NAME" ] || { echo -e "xxx missing REGISTRY_NAME in the ENV. \nDo:\nexport REGISTRY_NAME=your.registry.name"; exit 2; }
+#Check input
 
-echo -e "+ listing docker images"
-LIST=$(python3 "$(dirname $0)/shared/scripts.py" list --host REGISTRY_HOST)
+#Check Urls list
+echo -e "+ urls check ..."
+LIST=($(python "$(dirname $0)/shared/scripts.py" check --urls "$URLS"))
 
+CWD=$PWD
 declare -i TOTAL=0
 
-SUMMARY="summary.csv"
+echo -e "+ download loop (do not interrupt)"
 
-! [ -f $SUMMARY ] && echo "DOCKER,TARBALL,CHECKSUM" > $SUMMARY
-
-echo -e "+ upload loop"
-
-for DOCKER in ${LIST[*]}
+for url in ${LIST[*]}
   do
-    grep -q "$DOCKER" $SUMMARY && echo " . skipping docker ... $DOCKER" && continue
-    PARSED=$(sed 's/\:/%3A/g' <<< $(sed 's/\//%2F/g' <<<"$DOCKER"))
-    echo -e " . pulling docker ... $DOCKER"
-    docker pull $REGISTRY_HOST/$DOCKER > /dev/null
-    echo -e " . building tarball ... $PARSED.tar"
-    docker save $REGISTRY_HOST/$DOCKER -o $PARSED.tar
-    echo -e " . uploading tarball ... $REGISTRY_NAME/$DOCKER"
-    upload "$PARSED.tar"
-    echo -e " . cleaning ... "
-    echo "$REGISTRY_HOST/$DOCKER,$PARSED.tar,$(sha256sum $PARSED.tar|cut -d ' ' -f1)" >> $SUMMARY
-    docker image rm "$REGISTRY_HOST/$DOCKER"  > /dev/null
-    rm  "$PARSED.tar"
-    TOTAL=$TOTAL+1
+    { cd "$DIRECTORY" && youtube-dl -f  bestvideo+bestaudio "$url" >/dev/null && TOTAL=$TOTAL+1 ;} || cd "$CWD"
   done
 
 echo -e "+ total=$TOTAL"
-
-echo -e "+ pushing checksum file"
-upload $SUMMARY
-rm $SUMMARY
-
 echo -e "=== exit"
-

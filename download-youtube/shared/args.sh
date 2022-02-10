@@ -1,9 +1,8 @@
-while getopts :h:g:t: flag
+while getopts :u:d: flag
 do
     case "${flag}" in
-        h) REGISTRY_HOST=${OPTARG};;
-        g) GOOGLE_DRIVE=${OPTARG};;
-        t) ACCESS_TOKEN=${OPTARG};;
+        u) URLS=${OPTARG};;
+        d) DIRECTORY=${OPTARG};;
         *)
           usage
           exit 0
@@ -11,6 +10,5 @@ do
     esac
 done
 
-! [ -n "$REGISTRY_HOST" ] && echo "*Host not found*" && usage && exit 2
-! [ -n "$GOOGLE_DRIVE" ] && echo "*Google drive destination not given*" && usage && exit 2
-! [ -n "$ACCESS_TOKEN" ] && echo "*Google drive access token not given*" && usage && exit 2
+! [ -n "$URLS" -a -f "$URLS" ] && echo "*Urls not found*" && usage && exit 2
+! [ -n "$DIRECTORY" -a -d "$DIRECTORY" ] && echo "*Directory not given*" && usage && exit 2

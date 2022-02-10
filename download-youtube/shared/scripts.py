@@ -1,80 +1,52 @@
 import argparse
-import base64
-import json
-import os
 import pathlib
 import sys
+import urllib
 from logging import getLogger, basicConfig, ERROR, INFO
-from urllib.request import Request, urlopen
 from urllib.parse import urljoin
 
-logger = getLogger("backup-registry")
+logger = getLogger("download-videos")
 basicConfig(level=ERROR, format="%(levelname)s: %(message)s")
 
-REGISTRY_USERNAME = os.environ.get("REGISTRY_USERNAME")
-REGISTRY_PASSWORD = os.environ.get("REGISTRY_PASSWORD")
-REGISTRY_HOST = os.environ.get("REGISTRY_HOST", "http://localhost:5000")
+YOUTUBE = "https://youtu.be/"
 
 
-def _request(host, location):
+def check_urls(opt):
     """
-    get object from registry API
-    :param: path
-    :return: json
-    """
-    auth = {"Authorization": f"Basic {base64.b64encode(f'{REGISTRY_USERNAME:REGISTRY_PASSWORD}')}"} \
-        if REGISTRY_USERNAME and REGISTRY_PASSWORD else {}
-    api = urljoin(REGISTRY_HOST, "/v2/")
-    endpoint = urljoin(api, location)
-    logger.info(f"hitting the endpoint {endpoint}")
-    req = Request(endpoint, method="GET", headers={
-        "Content-Type": "application/json",
-        **auth
-    })
-    try:
-        resp = urlopen(req)
-    except Exception:
-        raise
-
-    return json.loads(resp.read())
-
-
-def list_repo(host):
-    """
-    :return: prints into stdout or into a file
-    """
-    return _request(host, "_catalog").get("repositories", [])
-
-
-def list_tags(opt):
-    """
-    List tags from a repo
+    check urls
     :param opt:
     :return: prints into stdout or into a file
     """
-    repos = list_repo(opt.host)
-    logger.info("\nrepos list:" + "".join(map(lambda s: f"\n{s}", repos)))
-    tags = []
-    for r in repos:
-        content = _request(opt.host, f"{r}/tags/list")
-        logger.info(content)
-        tags += list(map(lambda t: f"{r}:{t}", content.get("tags")))
-    if opt.output:
-        with open(opt.output, 'w') as f:
-            for row in tags:
-                f.write("%s" % row)
-    else:
-        for row in tags:
-            print("%s" % row)
+    with open(opt.urls[0]) as f:
+        urls = f.readlines()
+    logger.info(f"# urls ={len(urls)}")
+    clean_list = []
+    for u in urls:
+        try:
+            up = urllib.parse.urlparse(u)
+            if up.query:
+                qs = urllib.parse.parse_qs(up.query)
+                clean = YOUTUBE + qs['v'][0]
+            else:
+                clean = urllib.parse.urlunparse(up)
+            clean_list.append(clean)
+            print(clean)
+        except Exception as err:
+            logger.error(err)
+    logger.info(f"# cleaned ={len(clean_list)}")
+    print(" ".join(clean_list))
+    if opt.output :
+        with open(opt.output[0]) as f:
+            f.writelines(clean_list)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="scripts")
     subparsers = parser.add_subparsers(help="select the action's command")
-    sub = subparsers.add_parser("list", help="list all dockers into the registry")
-    sub.add_argument("--host", help=f"registry host", nargs=1, required=True, type=pathlib.Path)
+    sub = subparsers.add_parser("check", help="check urls videos are valid")
+    sub.add_argument("--urls", help=f"urls file", nargs=1, required=True, type=pathlib.Path)
     sub.add_argument("--output", "-o", help=f"output file", nargs="?", type=pathlib.Path)
-    sub.set_defaults(func=list_tags)
+    sub.set_defaults(func=check_urls)
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
     try:
         args.func(args)
