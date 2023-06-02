@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+function usage() {
+    echo -e \
+"Usage:
+  run -d target_directory
+  play backward MP4 files in the directory.
+  Arguments:
+   - d: target directory
+  "
+}
+
+source "$(dirname "$0")/shared/args.sh"
+
+echo -e "=== download videos"
+
+echo -e "+ dependencies check ..."
+
+#Dependencies check
+python --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency python3\n:  sudo apt install python"; exit 2; }
+ffmpeg -version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency ffmpeg\n"; exit 2; }
+
+#Check input
+
+#Check Urls list
+echo -e "+ urls check ..."
+LIST=($(python "$(dirname $0)/shared/scripts.py" check --urls "$URLS"))
+
+CWD=$PWD
+directory=$(pwd "$DIRECTORY")
+declare -i TOTAL=0
+
+echo -e "+ download loop (do not interrupt)"
+for url in ${LIST[*]}; do
+  { cd "$directory" && youtube-dl -cwix -f bestvideo+bestaudio "$url" >/dev/null && TOTAL=$TOTAL+1 ;} || cd "$CWD"
+done
+echo -e "+ total=$TOTAL"
+
+echo -e "=== exit"
