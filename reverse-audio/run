@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+function usage() {
+    echo -e \
+"Usage:
+  bash reverse-audio/run -s source_directory
+  play backward audio files in the source directory.
+  Arguments:
+   - s: target directory
+  "
+}
+
+source "$(dirname "$0")/shared/args.sh"
+
+#Dependencies check
+echo -e "+ dependencies check ..."
+ffmpeg -version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency ffmpeg\n"; exit 2; }
+
+#Check sources directory
+CWD=$PWD
+directory=$(realpath "$SOURCE_DIRECTORY")
+declare -i TOTAL=0
+echo -e "+ conversion loop (do not interrupt)"
+LIST=$(cd "$directory" && find "." -maxdepth 1 -type f)
+cd "$directory" && [  ! -d "./reversed/" ] && mkdir "./reversed/"
+cd "$directory" && [  ! -d "./concat/" ] && mkdir "./concat/"
+
+#Reversion Loop
+for file in ${LIST[*]}; do
+  { cd "$directory" \
+    && ffmpeg -y -i "$file" -map 0 -c:v copy -af "areverse" "./reversed/${TOTAL}-reversed.${file##*.}" >/dev/null 2>/dev/null \
+    && ffmpeg -y -i "$file" -i "./reversed/${TOTAL}-reversed.${file##*.}" -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" "./concat/${TOTAL}-concat.${file##*.}" >/dev/null 2>/dev/null \
+    && ffmpeg -y -i "./concat/${TOTAL}-concat.${file##*.}" -filter:a "atempo=0.5" -vn "./concat/${TOTAL}-tempo-50.${file##*.}" >/dev/null 2>/dev/null \
+    && TOTAL=$TOTAL+1 ; }
+done || cd "$CWD"
+echo -e "+ total converted: $TOTAL"
