@@ -1,8 +1,8 @@
-while getopts :o:l: flag
+while getopts :o:f: flag
 do
     case "${flag}" in
         o) ORGANIZATION_NAME=${OPTARG};;
-        l) REPO_NAMES=${OPTARG};;
+        f) REPO_NAMES=${OPTARG};;
         *)
           usage
           exit 0

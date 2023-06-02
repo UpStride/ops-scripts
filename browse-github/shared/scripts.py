@@ -4,12 +4,15 @@ import json
 import os
 import pathlib
 import sys
-from logging import getLogger, basicConfig, ERROR, INFO
+from logging import getLogger, basicConfig, INFO
+from operator import itemgetter
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
-from urllib.parse import urljoin
+from prettytable import PrettyTable
 
 logger = getLogger("backup-registry")
 basicConfig(level=INFO, format="%(levelname)s: %(message)s")
+GITHUB_API = "https://api.github.com"
 
 
 def _auth():
@@ -18,21 +21,15 @@ def _auth():
     """
     token = os.environ.get("GITHUB_TOKEN")
     username = os.environ.get("GITHUB_USERNAME")
-    assert username
-    assert token
+    if token is None:
+        raise Exception('GITHUB_TOKEN missing in the env')
+    if username is None:
+        raise Exception('GITHUB_USERNAME missing in the env')
     login = f"{username}:{token}".encode()
     return {"Authorization": f"Basic {base64.b64encode(login)}"}
 
 
-def recursive_join(base: str, paths: list):
-    logger.info(base)
-    if len(paths) > 0:
-        return recursive_join(urljoin(base, paths[0]), paths[1:])
-    else:
-        return base
-
-
-def _build_endpoint(org, res="repos"):
+def _build_endpoint(org, page_number=1):
     """
     build api endoint
     :param: org organization's name
@@ -41,29 +38,39 @@ def _build_endpoint(org, res="repos"):
     """
     url_definitions = \
         {
-            "repos": '/'.join(["https://api.github.com", "orgs", org, "repos"])
+            "repos": '/'.join([GITHUB_API, "orgs", org, "repos"]) + f"?page={page_number}&per_page=100"
         }
-    return url_definitions[res]
+    return url_definitions["repos"]
 
 
-def _request(org, method="GET"):
+def _request(org, previous_pages=None, page_number=1, method="GET"):
     """
     get object from registry API
     :param: path
     :return: json
     """
-    logger.info(f"hitting the endpoint {str(_build_endpoint(org))}")
-    req = Request(_build_endpoint(org), method=method, headers={
+    if previous_pages is None:
+        previous_pages = []
+    _endpoint = _build_endpoint(org, page_number=page_number)
+    req = Request(_endpoint, method=method, headers={
         "Content-Type": "application/json",
         "Accept": "application/vnd.github.v3+json",
         **_auth()
     })
     try:
         resp = urlopen(req)
+    except HTTPError as error:
+        logger.error(f"\n\tGithub server returned explicit error code:: {error.status}"
+                     f"\n\tStopping the lookup..")
+        return []
     except Exception:
         raise
-
-    return json.loads(resp.read())
+    repos = json.loads(resp.read())
+    logger.debug(f"new research total: {len(repos)}")
+    if repos:
+        return _request(org, previous_pages=previous_pages + repos, page_number=page_number + 1)
+    else:
+        return previous_pages
 
 
 def list_repo(org):
@@ -71,8 +78,18 @@ def list_repo(org):
     :return: prints into stdout or into a file
     """
     repos = _request(org)
+    if not repos:
+        logger.info("no repos found")
+        exit(0)
+    logger.info(f"public repos total = {len(repos)}")
+    output = PrettyTable()
+    output.field_names = ["Name", "Stars", "Language", "url"]
+    data = []
     for r in repos:
-        logger.info(f"owner={r['owner']['login']}/ name={r['full_name']}")
+        data.append([r['name'], int(r['stargazers_count']), r['language'], r['html_url']])
+    for c in sorted(data, key=itemgetter(1), reverse=True):
+        output.add_row(c)
+    logger.info("\n" + str(output))
 
 
 def analyze_repos(opt):
@@ -81,8 +98,8 @@ def analyze_repos(opt):
     :param opt:
     :return: prints into stdout or into a file
     """
-    logger.info(f'orga name={opt.org}')
-    repos = list_repo(opt.org[0])
+    logger.debug(f"organization's name: '{opt.org[0]}'")
+    list_repo(opt.org[0])
 
 
 if __name__ == "__main__":
@@ -99,5 +116,3 @@ if __name__ == "__main__":
     except Exception as e:
         raise e
         exit(2)
-
-
