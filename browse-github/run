@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+function usage() {
+    echo -e \
+"Usage:
+  run -o ContentSquare -l repo_name_list.csv
+  browse organization's github and extract information on repos.
+  Arguments:
+   - o: organization name.
+   - l: csv file containing the repo's anames
+  "
+}
+
+source "$(dirname $0)/shared/args.sh"
+
+echo -e "=== archive Registry"
+
+echo -e "+ dependencies checks"
+
+#Dependencies check
+python3 --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency python3\n:  sudo apt install python3"; exit 2; }
+docker --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency docker\n:  curl -fsSL https://get.docker.com | bash"; exit 2; }
+
+#Env check
+#[ -n "$REGISTRY_NAME" ] || { echo -e "xxx missing REGISTRY_NAME in the ENV. \nDo:\nexport REGISTRY_NAME=your.registry.name"; exit 2; }
+
+echo -e "+ list github repos"
+LIST=$(python3 "$(dirname $0)/shared/scripts.py" list --org $ORGANIZATION_NAME)
