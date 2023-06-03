@@ -41,17 +41,6 @@ There are additional readme files into scripts directory. Those readmes explain 
 - **reverse-audio** => reverse an audio sample
 
 
-### cronjobs
-- user story :<br/>
-*I want to renew letsencrypt certificate automatically*
-- installation :
-```bash
-curl https://raw.githubusercontent.com/UpStride/upstride-scripts/main/letsencrypt/renew-certs.sh | sudo bash
-```
-
-
-
-
 ## Testing
 Tests are still missing for two main reasons:
 - the repo is not very active
