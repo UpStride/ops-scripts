@@ -5,9 +5,9 @@ These scripts must require minimum stuff to run.
 
 ## Practical example of the philosophy
 Let's take the example of a Python script.<br><br>
-Whenever you write a python script, we strongly recommend built-in libraries to external libraries. This avoids the introduction of an additional layer of complexity for the script compilation. 
-If you write your python script with only built-in libraries, the only requirement is that the python's version corresponds to version where you implemented and tested your script.<br><br> 
-At the script's entrypoint, you must check if the python version is present on the machine. So your script will run swiftly on random machine with a compatible python version. If your script is not too complex is likely even a compatible major version will do...
+Whenever you write a python script, we strongly recommend built-in libraries to external libraries. This avoids the introduction of an additional layer of complexity to the script compilation. 
+If you write your python script with only built-in libraries, the only requirement is that the python's version corresponds to the version you implemented and tested your script into.<br><br> 
+At the script's entrypoint, you must check if the python version is present on the machine. So your script has good chances to run smoothly on the random machine. If your script is not too complex even a compatible major version will do...
 
 ## Scripts structure 
 All scripts have the same structure:
