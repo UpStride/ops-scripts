@@ -9,7 +9,7 @@ function usage() {
     echo -e \
 "Usage:
 
-  sudo upstride-logs -u username -p password -i image_name [-d directory -c container_name -n namespace]
+  sudo upload-logs -u username -p password -i image_name [-d directory -c container_name -n namespace]
 
   Retrieve and upload a docker container log to the specific endpoint <$ENDPOINT_URL>
   Arguments:

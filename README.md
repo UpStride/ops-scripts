@@ -26,15 +26,20 @@ Below some details about the scripts structure:
 
 The main script must run dependencies check and warn if something is missing. For example, below we check python version with a regex and crash if the check fails:
 ````bash
-python3 --version | grep -E "Python 3.([7-9]|1[0-1])\..*" >/dev/null ||  { echo "Python version is not between 3.7 and 3.11"; exit 2; }
+python3 --version | grep -E "Python 3.([7-9]|1[0-1])\..*" >/dev/null \
+||  { echo "Python version is not between 3.7 and 3.11"; exit 2; }
 ````
 
 ## Scripts List 
 Here is a non-exhaustive list of scripts implemented in the repos and their main purpose. 
 There are additional readme files into scripts directory. Those readmes explain scripts fine-graded manipulation:
-- **backup-registry** => archive all docker container(s) into a docker registry and push it into a bucket
+- **backup-registry** => archive all docker container(s) from a docker registry to google drive
 - **azure-cleanup** => remove azure resource groups
 - **azure-filesystem** => install azurefile and start the service
+- **upload-logs** => push logs files to a data store
+- **browse-github** => scrap GitHub public repos from a specific company
+- **reverse-audio** => reverse an audio sample
+
 
 ### cronjobs
 - user story :<br/>
@@ -44,12 +49,7 @@ There are additional readme files into scripts directory. Those readmes explain 
 curl https://raw.githubusercontent.com/UpStride/upstride-scripts/main/letsencrypt/renew-certs.sh | sudo bash
 ```
 
-### upload-logs
-- user story :<br/>
-*I want to upload docker container log to some data store.*
-```bash
-curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/upload-logs/install |sudo bash
-```
+
 
 
 ## Testing

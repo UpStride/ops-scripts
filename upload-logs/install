@@ -9,17 +9,17 @@ echo -e "\033[1;32m  step: check root privileges \033[0m"
   { echo -e "\033[1;31m  x must be run with root privileges \033[0m\n" && usage && exit 2; }
   
 # install the log main script
-echo -e "\033[1;32m  step: download script from <github> to <upstride-logs> \033[0m"
-curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/upload-logs/main -o upstride-logs --silent > /dev/null && \
-echo -e "\033[1;32m  step: install <upstride-logs>\033[0m" &&\
-sudo mv upstride-logs /usr/bin &&\
-chmod +x /usr/bin/upstride-logs 
+echo -e "\033[1;32m  step: download script from <github> to <upload-logs> \033[0m"
+curl https://raw.githubusercontent.com/UpStride/ops-scripts/main/upload-logs/main -o upload-logs --silent > /dev/null && \
+echo -e "\033[1;32m  step: install <upload-logs>\033[0m" &&\
+sudo mv upload-logs /usr/bin &&\
+chmod +x /usr/bin/upload-logs
 
 
 # set the cronjob
-# sudo cat > /etc/cron.hourly/upstride-logs <<EOL
+# sudo cat > /etc/cron.hourly/upload-logs <<EOL
 ##!/bin/bash
-#/usr/bin/upstride-logs -u dummy@company.com -p access_token -n production-logs -c upstride-engine
+#/usr/bin/upload-logs -u dummy@company.com -p access_token -n production-logs -c upstride-engine
 #EOL
 
 echo  -e "\033[1;33m *** exit\033[0m\n"
