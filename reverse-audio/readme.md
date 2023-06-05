@@ -1,4 +1,9 @@
-## Download youtube videos
+## Reverse Audio Files
+
+Convert all audio files from a directory (a-b-c-d) to:
+.reversed/ (d-c-b-a)
+.palindromic/ (a-b-c-d-d-c-b-a)
+.palindromic-50/ (same as palindromic played at 50% speed) 
 
 **run the script**
 ```bash

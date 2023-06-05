@@ -21,16 +21,18 @@ CWD=$PWD
 directory=$(realpath "$SOURCE_DIRECTORY")
 declare -i TOTAL=0
 echo -e "+ conversion loop (do not interrupt)"
-LIST=$(cd "$directory" && find "." -maxdepth 1 -type f)
+# shellcheck disable=SC2207
+LIST=($(cd "$directory" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.wav'))
+echo -e "+ total audio files found: ${#LIST[@]}"
 cd "$directory" && [  ! -d "./.reversed/" ] && mkdir "./.reversed/"
-cd "$directory" && [  ! -d "./concat/" ] && mkdir "./concat/"
-
+cd "$directory" && [  ! -d "./.palindromic/" ] && mkdir "./.palindromic/"
+cd "$directory" && [  ! -d "./.palindromic-50/" ] && mkdir "./.palindromic-50/"
 #Reversion Loop
 cd "$directory" || exit 2
 for file in ${LIST[*]}; do
-  {  ffmpeg -y -i "$file" -map 0 -c:v copy -af "areverse" "./.reversed/${TOTAL}-reversed.${file##*.}" >/dev/null 2>/dev/null \
-    && ffmpeg -y -i "$file" -i "./.reversed/${TOTAL}-reversed.${file##*.}" -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" "./concat/${TOTAL}-concat.${file##*.}" >/dev/null 2>/dev/null \
-    && ffmpeg -y -i "./concat/${TOTAL}-concat.${file##*.}" -filter:a "atempo=0.5" -vn "./concat/${TOTAL}-tempo-50.${file##*.}" >/dev/null 2>/dev/null \
+  {  ffmpeg -y -i "$file" -map 0 -c:v copy -af "areverse" "./.reversed/${file,,}" >/dev/null 2>/dev/null \
+    && ffmpeg -y -i "$file" -i "./.reversed/${file,,}" -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" "./.palindromic/${file,,}" >/dev/null 2>/dev/null \
+    && ffmpeg -y -i "./.palindromic/${file,,}" -filter:a "atempo=0.5" -vn "./.palindromic-50/${file,,}" >/dev/null 2>/dev/null \
     && TOTAL=$TOTAL+1 ; }
 done || cd "$CWD"
-echo -e "+ total converted: $TOTAL"
+echo -e "+ total audio files converted: $TOTAL"
