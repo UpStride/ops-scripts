@@ -13,6 +13,7 @@ from prettytable import PrettyTable
 logger = getLogger("backup-registry")
 basicConfig(level=INFO, format="%(levelname)s: %(message)s")
 GITHUB_API = "https://api.github.com"
+RESULTS_PER_PAGE = 100
 
 
 def _auth():
@@ -38,7 +39,7 @@ def _build_endpoint(org, page_number=1):
     """
     url_definitions = \
         {
-            "repos": '/'.join([GITHUB_API, "orgs", org, "repos"]) + f"?page={page_number}&per_page=100"
+            "repos": '/'.join([GITHUB_API, "orgs", org, "repos"]) + f"?page={page_number}&per_page={RESULTS_PER_PAGE}"
         }
     return url_definitions["repos"]
 
@@ -67,13 +68,13 @@ def _request(org, previous_pages=None, page_number=1, method="GET"):
         raise
     repos = json.loads(resp.read())
     logger.debug(f"new research total: {len(repos)}")
-    if repos:
+    if repos and len(repos) == RESULTS_PER_PAGE:
         return _request(org, previous_pages=previous_pages + repos, page_number=page_number + 1)
     else:
-        return previous_pages
+        return previous_pages + repos
 
 
-def list_repo(org):
+def _list_repos(org):
     """
     :return: prints into stdout or into a file
     """
@@ -84,22 +85,25 @@ def list_repo(org):
     logger.info(f"public repos total = {len(repos)}")
     output = PrettyTable()
     output.field_names = ["Name", "Stars", "Language", "url"]
-    data = []
+    repos_table = []
     for r in repos:
-        data.append([r['name'], int(r['stargazers_count']), r['language'], r['html_url']])
-    for c in sorted(data, key=itemgetter(1), reverse=True):
-        output.add_row(c)
-    logger.info("\n" + str(output))
+        repos_table.append([r['name'], int(r['stargazers_count']), r['language'], r['html_url']])
+    return sorted(repos_table, key=itemgetter(1), reverse=True)
 
 
-def analyze_repos(opt):
+def print_repos(opt):
     """
     List tags from a repo
     :param opt:
     :return: prints into stdout or into a file
     """
     logger.debug(f"organization's name: '{opt.org[0]}'")
-    list_repo(opt.org[0])
+    repos_table = _list_repos(opt.org[0])
+    output = PrettyTable()
+    output.field_names = ["Name", "Stars", "Language", "url"]
+    for c in repos_table:
+        output.add_row(c)
+    logger.info("\n" + str(output))
 
 
 if __name__ == "__main__":
@@ -109,7 +113,7 @@ if __name__ == "__main__":
     sub.add_argument("--org", help=f"organization's name", nargs=1, required=True, type=str)
     sub.add_argument("--filter", "-f", help=f"filter list in csv file", nargs="?", type=pathlib.Path)
     sub.add_argument("--output", "-o", help=f"output file", nargs="?", type=pathlib.Path)
-    sub.set_defaults(func=analyze_repos)
+    sub.set_defaults(func=print_repos)
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
     try:
         args.func(args)
