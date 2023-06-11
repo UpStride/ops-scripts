@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+function usage() {
+    echo -e \
+"Usage:
+  bash compute-audio-space/run -s source_directory
+  compute non-variant space from audio files in the source directory.
+  Arguments:
+   - s: target directory
+  "
+}
+
+source "$(dirname "$0")/shared/args.sh"
+
+#Dependencies check
+echo -e "=> dependencies check"
+ffmpeg -version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency ffmpeg\n"; exit 2; }
+python3 --version | grep -E "Python 3.([1-9]|1[0-1])\..*" >/dev/null \
+    ||  { echo "Python version is not between 3.0 and 3.11"; exit 2; }
+python3 -c "import scipy" >/dev/null 2>/dev/null \
+    || { echo "scipy not present. installing .."; python3 -m pip install scipy >/dev/null 2>/dev/null; }
+python3 -c "import matplotlib" >/dev/null 2>/dev/null \
+    || { echo "matplotlib not present. installing .."; python3 -m pip install matplotlib >/dev/null 2>/dev/null; }
+python3 -c "import numpy" >/dev/null 2>/dev/null \
+    || { echo "numpy not present. installing .."; python3 -m pip install numpy >/dev/null 2>/dev/null; }
+
+#Compute reverted audio files
+audio_files=$(realpath "$SOURCE_DIRECTORY")
+declare -i TOTAL=0
+echo -e "=> revert audio files"
+reverse-audio/run -s "$audio_files"
+
+#Compute FFT audio files and reverted audio files
+CWD=$PWD
+echo -e "=> clearing .fft directory"
+[ -d "$audio_files/.fft/" ] && rm -r "$audio_files/.fft/"
+mkdir "$audio_files/.fft/"
+echo -e "=> fft audio files"
+LIST=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.wav')
+for file in ${LIST[*]}; do
+    {  python3 "$(dirname $0)/shared/scripts.py" fft -a "$audio_files/$file" "$audio_files/.reversed/${file,,}" "$audio_files/.palindromic/${file,,}" -o "$audio_files/.fft/${file,,}.png" \
+         && TOTAL=$TOTAL+1 ; }
+done
+

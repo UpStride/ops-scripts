@@ -10,7 +10,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from prettytable import PrettyTable
 
-logger = getLogger("backup-registry")
+logger = getLogger("browse-github")
 basicConfig(level=INFO, format="%(levelname)s: %(message)s")
 GITHUB_API = "https://api.github.com"
 RESULTS_PER_PAGE = 100
@@ -32,9 +32,9 @@ def _auth():
 
 def _build_endpoint(org, page_number=1):
     """
-    build api endoint
+    build api endpoint
     :param: org organization's name
-    :param: res targeted resource
+    :param: page_number for query
     :return: json
     """
     url_definitions = \
@@ -46,7 +46,7 @@ def _build_endpoint(org, page_number=1):
 
 def _request(org, previous_pages=None, page_number=1, method="GET"):
     """
-    get object from registry API
+    get object from API
     :param: path
     :return: json
     """
@@ -76,7 +76,7 @@ def _request(org, previous_pages=None, page_number=1, method="GET"):
 
 def _list_repos(org):
     """
-    :return: prints into stdout or into a file
+    :return: list public repos
     """
     repos = _request(org)
     if not repos:
@@ -93,7 +93,7 @@ def _list_repos(org):
 
 def print_repos(opt):
     """
-    List tags from a repo
+    Print public repos from organization into the stdout
     :param opt:
     :return: prints into stdout or into a file
     """
@@ -104,6 +104,10 @@ def print_repos(opt):
     for c in repos_table:
         output.add_row(c)
     logger.info("\n" + str(output))
+    if opt.output:
+        with open(opt.output, 'w') as f:
+            f.write(output)
+    return output
 
 
 if __name__ == "__main__":
@@ -111,7 +115,6 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(help="select the action's command")
     sub = subparsers.add_parser("list", help="list all repos into the organization github")
     sub.add_argument("--org", help=f"organization's name", nargs=1, required=True, type=str)
-    sub.add_argument("--filter", "-f", help=f"filter list in csv file", nargs="?", type=pathlib.Path)
     sub.add_argument("--output", "-o", help=f"output file", nargs="?", type=pathlib.Path)
     sub.set_defaults(func=print_repos)
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
