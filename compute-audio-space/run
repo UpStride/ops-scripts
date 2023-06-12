@@ -32,13 +32,20 @@ reverse-audio/run -s "$audio_files"
 
 #Compute FFT audio files and reverted audio files
 CWD=$PWD
-echo -e "=> clearing .fft directory"
-[ -d "$audio_files/.fft/" ] && rm -r "$audio_files/.fft/"
+[ -d "$audio_files/.fft/" ] && { echo -e "=> clearing .fft directory"; rm -r "$audio_files/.fft/"; }
 mkdir "$audio_files/.fft/"
+echo -e "=> checking MP3/OGG"
+MP3=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.ogg')
+[ -n "$MP3" ] && {
+  echo -e "+ converting MP3/OGG"
+  for file in ${MP3[*]}; do
+    {  ffmpeg -i -y "$audio_files/$file" "$audio_files/${file,,}.wav" >/dev/null 2>/dev/null  ; }
+  done || cd $CWD
+}
 echo -e "=> fft audio files"
-LIST=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.wav')
+LIST=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.wav')
 for file in ${LIST[*]}; do
     {  python3 "$(dirname $0)/shared/scripts.py" fft -a "$audio_files/$file" "$audio_files/.reversed/${file,,}" "$audio_files/.palindromic/${file,,}" -o "$audio_files/.fft/${file,,}.png" \
          && TOTAL=$TOTAL+1 ; }
-done
+done || cd $CWD
 

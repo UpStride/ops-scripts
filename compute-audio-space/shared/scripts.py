@@ -13,7 +13,9 @@ import numpy
 from scipy.fft import fft
 
 COLORS = "rgbcmykw"
-LEN_COLORS = len(COLORS)
+COLORS_PALETTE = ["xkcd:reddish orange", "xkcd:lime green", "xkcd:sky blue",
+                  "xkcd:neon blue", "xkcd:umber", "xkcd:golden yellow"]
+LEN_COLORS = len(COLORS_PALETTE)
 THRESHOLD = 1.E-30
 
 
@@ -21,7 +23,7 @@ def transform_audio(opt):
     plot.figure(figsize=(20, 10))
     for i, a in enumerate(reversed(opt.audio)):
         logger.info(f"audio file: {a}")
-        _plot_audio(file_name=a, color=COLORS[i % LEN_COLORS])
+        _plot_audio(file_name=a, color=COLORS_PALETTE[i % LEN_COLORS])
     plot.legend()
     plot.xlabel('Channel_Frequency (kHz)')
     plot.ylabel('Channel_Power (dB)')
@@ -34,11 +36,6 @@ def transform_audio(opt):
 
 def _scale(arr: numpy.array):
     abs_arr = abs(arr)
-    return arr / float(len(arr)) / numpy.mean(abs_arr) + THRESHOLD
-
-
-def _scale2(arr: numpy.array):
-    abs_arr = abs(arr)
     return arr / float(len(arr)) + THRESHOLD
 
 
@@ -46,9 +43,9 @@ def _plot_audio(file_name, color):
     rate, audiodata = wavfile.read(file_name, )
     n = len(audiodata)
     if len(audiodata.shape) == 2:
-        amplitude = _scale2(fft(audiodata.sum(axis=1) / 2))
+        amplitude = _scale(fft(audiodata.sum(axis=1) / 2))
     else:
-        amplitude = _scale2(fft(audiodata))  # take the fourier transform of left channel
+        amplitude = _scale(fft(audiodata))  # take the fourier transform of left channel
     freq = numpy.arange(0, n, 1.0) * (rate / n) / 1000
     logger.info(f"#_freq={n}, min_freq={freq[0]}(khz), max_freq={freq[-1]}(khz)")
     plot.plot(freq, numpy.log10(amplitude), color=color, label=file_name)
