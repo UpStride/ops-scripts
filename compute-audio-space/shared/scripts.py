@@ -12,7 +12,6 @@ basicConfig(level=ERROR, format="%(levelname)s: %(message)s")
 import matplotlib.pyplot as plot
 from scipy.io import wavfile
 import numpy
-from scipy.fft import fft
 
 COLORS = "rgbcmykw"
 COLORS_PALETTE = ["xkcd:reddish orange", "xkcd:lime green", "xkcd:sky blue",
@@ -73,9 +72,9 @@ def _plot_audio(file_name, color):
         return
     n = len(audiodata)
     if len(audiodata.shape) == 2:
-        amplitude = _scale(fft(audiodata.sum(axis=1) / 2))
+        amplitude = _scale(numpy.fft.fft(audiodata.sum(axis=1) / 2))
     else:
-        amplitude = _scale(fft(audiodata))  # take the fourier transform of left channel
+        amplitude = _scale(numpy.fft.fft(audiodata))  # take the fourier transform of left channel
     freq = numpy.arange(0, n, 1.0) * (rate / n) / 1000
     logger.info(f"#_freq={n}, min_freq={freq[0]}(khz), max_freq={freq[-1]}(khz)")
     plot.plot(freq, numpy.log10(amplitude), color=color, label=file_name)

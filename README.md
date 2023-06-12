@@ -1,7 +1,7 @@
 # Ops Scripts
 
-The philosophy of the repository herein is to provide handy scripts no more complex than a curl command. Please keep in mind, that these scripts are executed on random machines where the environment is unsure.
-These scripts must require minimum stuff to run. 
+The philosophy of the repo is to provide handy scripts no more complex than a `curl` command. Please keep in mind, that these scripts here are executed on random machines with unsure environment.
+The scripts must require minimum stuff to compile and run. 
 
 ## Practical example of the philosophy
 Let's take the example of a Python script.<br><br>
