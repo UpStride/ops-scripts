@@ -11,5 +11,5 @@ bash compute-audio-space/run -s target_directory
 
 #Example:
 
-bash compute-audio-space/run -s /c/Users/marce/Maths/Data/Audio/Unittest
+bash compute-audio-space/run -s /c/Users/marce/Maths/Data/Audio/Nature
 ```

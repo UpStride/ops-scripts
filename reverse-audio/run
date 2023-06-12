@@ -22,7 +22,7 @@ directory=$(realpath "$SOURCE_DIRECTORY")
 declare -i TOTAL=0
 echo -e "+ conversion loop (do not interrupt)"
 # shellcheck disable=SC2207
-LIST=($(cd "$directory" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.wav'))
+LIST=($(cd "$directory" && find "." -maxdepth 1 -iname '*.wav'))
 echo -e "+ total audio files found: ${#LIST[@]}"
 cd "$directory" && [  ! -d "./.reversed/" ] && mkdir "./.reversed/"
 cd "$directory" && [  ! -d "./.palindromic/" ] && mkdir "./.palindromic/"
