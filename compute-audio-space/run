@@ -10,6 +10,18 @@ function usage() {
   "
 }
 
+function copy_file() {
+    [ ! -f "$1" ] && return 0
+    [ "$1" != "$2" ] && mv "$1" "$2"
+}
+
+function legit_name() {
+  lower_case=${1,,}
+  clean_name="${lower_case//[\ \']/_}"
+  copy_file "$1" "$clean_name" >/dev/null
+  echo "$clean_name"
+}
+
 source "$(dirname "$0")/shared/args.sh"
 
 #Dependencies check
@@ -24,9 +36,10 @@ python3 -c "import matplotlib" >/dev/null 2>/dev/null \
 python3 -c "import numpy" >/dev/null 2>/dev/null \
     || { echo "numpy not present. installing .."; python3 -m pip install numpy >/dev/null 2>/dev/null; }
 
-#Compute reverted audio files
+
 audio_files=$(realpath "$SOURCE_DIRECTORY")
 CWD=$PWD
+#Converting MP3/OGG files to wav
 echo -e "=> checking MP3/OGG"
 MP3=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.ogg')
 [ -n "$MP3" ] && {
@@ -35,18 +48,30 @@ MP3=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.ogg'
     {  ffmpeg -y -i "$audio_files/$file" "$audio_files/${file##*/}.wav" >/dev/null 2>/dev/null  ; }
   done || cd $CWD
 }
-echo -e "=> revert audio files"
+
+echo -e "=> checking audio files names"
+cd "$audio_files" || exit 2
+LIST=$(find "." -maxdepth 1 -iname '*.wav')
+while read -r filename; do
+    legit_filename=$(legit_name "$filename")
+done <<< "$LIST"
+cd "$CWD" || exit 2
+
+#Compute reverted audio files
+echo -e "=> reverting audio files"
 reverse-audio/run -s "$audio_files"
 
-#Compute FFT audio files and reverted audio files
+#Compute FFT of original / reverted / palindromic audio file
 echo -e "=> fft audio files"
 [ -d "$audio_files/.fft/" ] && { echo -e "+ clearing .fft directory"; rm -r "$audio_files/.fft/"; }
 mkdir "$audio_files/.fft/"
 declare -i TOTAL=0
 LIST=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.wav')
-for file in ${LIST[*]}; do
-    {  echo -e "+ file #$TOTAL" \
-         && python3 "$(dirname $0)/shared/scripts.py" fft -a "$audio_files/$file" "$audio_files/.reversed/${file,,}" "$audio_files/.palindromic/${file,,}" -o "$audio_files/.fft/${file,,}.png" \
+echo -e "+ entering computation loop";
+while read -r filename; do
+    {  echo -e "+ file #$TOTAL: $filename"\
+    && python3 "$(dirname "$0")/shared/scripts.py" fft -a "$audio_files/$filename" "$audio_files/.reversed/${legit_filename,,}" "$audio_files/.palindromic/${filename,,}" -o "$audio_files/.fft/${filename,,}.png" \
          && TOTAL=$TOTAL+1 ; }
-done || cd $CWD
+done <<< "$LIST" && echo -e "=> total computed: $TOTAL"
+
 
