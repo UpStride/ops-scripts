@@ -48,9 +48,12 @@ MP3=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.ogg'
   done || cd $CWD
 }
 
-echo -e "=> checking audio files names"
+echo -e "=> checking audio files"
 cd "$audio_files" || exit 2
 LIST=$(find "." -maxdepth 1 -iname '*.wav')
+[ -z "$LIST" ] && echo -e "x no audio files found" && exit 0
+echo -e "+ audio files found: ${#LIST[@]}"
+echo -e "+ checking special characters"
 while read -r filename; do
     legit_name "$filename"
 done <<< "$LIST"

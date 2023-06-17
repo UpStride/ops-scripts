@@ -6,7 +6,7 @@ Convert audio files from a directory (a-b-c-d) to:
 .palindromic-50/ (same as palindromic played at 50% speed) 
 
 *Note: only .wav files are supported.*
-
+ 
 **run the script**
 ```bash
 bash reverse-audio/run -s target_directory

@@ -13,7 +13,6 @@ import matplotlib.pyplot as plot
 from scipy.io import wavfile
 import numpy
 
-COLORS = "rgbcmykw"
 COLORS_PALETTE = ["xkcd:reddish orange", "xkcd:lime green", "xkcd:sky blue",
                   "xkcd:neon blue", "xkcd:umber", "xkcd:golden yellow"]
 LEN_COLORS = len(COLORS_PALETTE)
