@@ -12,7 +12,6 @@ RUN apt update
 RUN apt install -y ffmpeg
 
 #test suite
-RUN chmod +x ./tests/*.sh
 RUN ./tests/dry-run.sh
 RUN ./tests/compute-audio.sh
 RUN ./tests/browse-github.sh
