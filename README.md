@@ -42,6 +42,10 @@ There are additional readme files into scripts directory. Those readmes explain 
 
 
 ## Testing
-Tests are still missing for two main reasons:
-- the repo is not very active
-- at the moment, the objective of the repo is not to provide production grade code, but handy scripts to execute on the flight.
+Tests Suite is written in Bash.
+- test case `dry-run.sh`: check if scripts are doing no harm for a dry-run or with dummy arguments 
+- test case `compute-audio.sh`: check if the transformation of audio files output files in expected type 
+
+
+## Build & Automation
+A docker container is built to ease the run of scripts herein on remote machines.

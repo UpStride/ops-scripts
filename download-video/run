@@ -26,9 +26,11 @@ youtube-dl --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency
 
 #Check Urls list
 echo -e "+ urls check ..."
+# shellcheck disable=SC2207
 LIST=($(python "$(dirname $0)/shared/scripts.py" check --urls "$URLS"))
 
 CWD=$PWD
+# shellcheck disable=SC2153
 directory=$(pwd "$DIRECTORY")
 declare -i TOTAL=0
 

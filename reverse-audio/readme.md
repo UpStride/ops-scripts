@@ -3,7 +3,6 @@
 Convert audio files from a directory (a-b-c-d) to:
 .reversed/ (d-c-b-a)
 .palindromic/ (a-b-c-d-d-c-b-a)
-.palindromic-50/ (same as palindromic played at 50% speed) 
 
 *Note: only .wav files are supported.*
  
