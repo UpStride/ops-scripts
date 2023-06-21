@@ -61,7 +61,7 @@ def _request(org, previous_pages=None, page_number=1, method="GET"):
     try:
         resp = urlopen(req)
     except HTTPError as error:
-        logger.error(f"\n\tGithub server returned explicit error code:: {error.status}"
+        logger.debug(f"\n\tGithub server returned explicit error code:: {error.status}"
                      f"\n\tStopping the lookup..")
         return []
     except Exception:
@@ -80,9 +80,9 @@ def _list_repos(org):
     """
     repos = _request(org)
     if not repos:
-        logger.info("no repos found")
-        exit(0)
-    logger.info(f"public repos total = {len(repos)}")
+        logger.debug("no repos found")
+        return []
+    logger.debug(f"public repos total = {len(repos)}")
     output = PrettyTable()
     output.field_names = ["Name", "Stars", "Language", "url"]
     repos_table = []
@@ -99,6 +99,9 @@ def print_repos(opt):
     """
     logger.debug(f"organization's name: '{opt.org[0]}'")
     repos_table = _list_repos(opt.org[0])
+    print(f"repos {len(repos_table)}")
+    if not repos_table:
+        exit(0)
     output = PrettyTable()
     output.field_names = ["Name", "Stars", "Language", "url"]
     for c in repos_table:
@@ -107,7 +110,6 @@ def print_repos(opt):
     if opt.output:
         with open(opt.output, 'w') as f:
             f.write(output)
-    return output
 
 
 if __name__ == "__main__":

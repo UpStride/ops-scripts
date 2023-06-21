@@ -21,59 +21,63 @@ function legit_name() {
   copy_file "$1" "$clean_name" >/dev/null
 }
 
+function info() {
+  [ -n "$VERBOSE" ] && echo -e "$1" >&2 || return 0
+}
+
 source "$(dirname "$0")/shared/args.sh"
 
 #Dependencies check
-echo -e "=> dependencies check"
-ffmpeg -version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency ffmpeg\n"; exit 2; }
+info "=> dependencies check"
+ffmpeg -version >/dev/null 2>/dev/null || { info "xxx missing dependency ffmpeg\n"; exit 2; }
 python3 --version | grep -E "Python 3.([1-9]|1[0-1])\..*" >/dev/null \
-    ||  { echo "Python version is not between 3.0 and 3.11"; exit 2; }
+    ||  { info "Python version is not between 3.0 and 3.11"; exit 2; }
 python3 -c "import scipy" >/dev/null 2>/dev/null \
-    || { echo "scipy not present. installing .."; python3 -m pip install scipy >/dev/null 2>/dev/null; }
+    || { info "scipy not present. installing .."; python3 -m pip install scipy >/dev/null 2>/dev/null; }
 python3 -c "import matplotlib" >/dev/null 2>/dev/null \
-    || { echo "matplotlib not present. installing .."; python3 -m pip install matplotlib >/dev/null 2>/dev/null; }
+    || { info "matplotlib not present. installing .."; python3 -m pip install matplotlib >/dev/null 2>/dev/null; }
 python3 -c "import numpy" >/dev/null 2>/dev/null \
-    || { echo "numpy not present. installing .."; python3 -m pip install numpy >/dev/null 2>/dev/null; }
+    || { info "numpy not present. installing .."; python3 -m pip install numpy >/dev/null 2>/dev/null; }
 
 
 audio_files=$(realpath "$SOURCE_DIRECTORY")
 CWD=$PWD
 #Converting MP3/OGG files to wav
-echo -e "=> checking MP3/OGG"
+info "=> checking MP3/OGG"
 MP3=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.ogg')
 [ -n "$MP3" ] && {
-  echo -e "+ converting MP3/OGG"
+  info "+ converting MP3/OGG"
   for file in ${MP3[*]}; do
     {  ffmpeg -y -i "$audio_files/$file" "$audio_files/${file##*/}.wav" >/dev/null 2>/dev/null  ; }
   done || cd $CWD
 }
 
-echo -e "=> checking audio files"
+info "=> checking audio files" >&2
 cd "$audio_files" || exit 2
 LIST=$(find "." -maxdepth 1 -iname '*.wav')
-[ -z "$LIST" ] && echo -e "x no audio files found" && exit 0
-echo -e "+ audio file(s) found"
-echo -e "+ checking special characters"
+[ -z "$LIST" ] && info "x no audio files found" && exit 0
+info "+ audio file(s) found"
+info "+ checking special characters"
 while read -r filename; do
     legit_name "$filename"
 done <<< "$LIST"
 cd "$CWD" || exit 2
 
 #Compute reverted audio files
-echo -e "=> reverting audio files"
+info "=> reverting audio files"
 reverse-audio/run -s "$audio_files"
 
 #Compute FFT of original / reverted / palindromic audio file
-echo -e "=> fft audio files"
-[ -d "$audio_files/.fft/" ] && { echo -e "+ clearing .fft directory"; rm -r "$audio_files/.fft/"; }
+info "=> fft audio files"
+[ -d "$audio_files/.fft/" ] && { info "+ clearing .fft directory"; rm -r "$audio_files/.fft/"; }
 mkdir "$audio_files/.fft/"
 declare -i TOTAL=0
 LIST=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.wav')
-echo -e "+ entering computation loop";
+info "+ entering computation loop";
 while read -r filename; do
-    {  echo -e "++ file #$TOTAL: $filename"\
+    {  info "++ file #$TOTAL: $filename"\
     && python3 "$(dirname "$0")/shared/scripts.py" fft -a "$audio_files/$filename" "$audio_files/.reversed/${filename,,}" "$audio_files/.palindromic/${filename,,}" -o "$audio_files/.fft/${filename,,}.png" \
          && TOTAL=$TOTAL+1 ; }
-done <<< "$LIST" && echo -e "=> total computed: $TOTAL"
+done <<< "$LIST" && info "=> total computed: $TOTAL"
 
 

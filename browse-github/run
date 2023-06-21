@@ -7,17 +7,21 @@ function usage() {
   browse organization's github and extract information on repos.
   Arguments:
    - o: organization name.
-   - f: csv file containing the repo's names filter
+   - d: debug mode
   "
 }
 
 source "$(dirname $0)/shared/args.sh"
 
+function info() {
+  [ -n "$VERBOSE" ] && echo -e "$1" >&2 || return 0
+}
+
 #Dependencies check
-echo -e "+ dependencies checks"
+info "+ dependencies checks" >&2
 python3 --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency python3\n:  sudo apt install python3"; exit 2; }
 python3 -c "import prettytable" >/dev/null 2>/dev/null || { python3 -m pip install prettytable >/dev/null 2>/dev/null; }
 
 #Call python scripts
-echo -e "+ list github repos"
+info "+ list github repos" >&2
 python3 "$(dirname $0)/shared/scripts.py" list --org "$ORGANIZATION_NAME"

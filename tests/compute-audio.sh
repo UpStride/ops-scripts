@@ -11,7 +11,6 @@ function check_content(){
   done
 }
 
-# initial checksum
 echo "#1 'compute-audio-space' single audio"
 bash compute-audio-space/run -s tests/data/audio/single-file >/dev/null
 check_content tests/data/audio/single-file/.fft 'image/png'

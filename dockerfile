@@ -5,11 +5,13 @@ WORKDIR /src/
 #copy all sources to /src
 COPY . /src/
 
-# Install requirements
+#install requirements
 RUN pip install -r requirements-python.txt
 RUN apt update
 RUN apt install -y ffmpeg
 
-#Test Suite
+#test suite
 RUN ./tests/dry-run.sh
 RUN ./tests/compute-audio.sh
+RUN ./tests/browse-github.sh
+

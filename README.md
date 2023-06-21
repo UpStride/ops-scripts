@@ -1,4 +1,5 @@
 # Ops Scripts
+[![Build Status](https://img.shields.io/github/actions/workflow/status/docker/buildx/build.yml?branch=master&label=build&logo=github&style=flat-square)](https://github.com/MarcelNasser/ops-script/actions?query=workflow%3Abuild)
 
 The philosophy of the repo is to provide handy scripts no more complex than a `curl` command. Please keep in mind, that these scripts here are executed on random machines with unsure environment.
 The scripts must require minimum stuff to compile and run. 
@@ -48,4 +49,4 @@ Tests Suite is written in Bash.
 
 
 ## Build & Automation
-A docker container is built to ease the run of scripts herein on remote machines.
+A docker image is built to ease the run of scripts herein on remote machines. The docker image is released on docker-hub:

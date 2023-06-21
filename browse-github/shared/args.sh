@@ -1,8 +1,7 @@
-while getopts :o:f: flag
+while getopts :o: flag
 do
     case "${flag}" in
         o) ORGANIZATION_NAME=${OPTARG};;
-        f) REPO_NAMES=${OPTARG};;
         *)
           usage
           exit 0
@@ -10,4 +9,5 @@ do
     esac
 done
 
-! [ -n "$ORGANIZATION_NAME" ] && echo "*organization name not found*" && usage && exit 2
+[ -z "$ORGANIZATION_NAME" ] && echo "*organization name not provided*" && usage && exit 2
+
