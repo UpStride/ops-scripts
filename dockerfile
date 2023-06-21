@@ -4,6 +4,7 @@ WORKDIR /src/
 
 #copy all sources to /src
 COPY . /src/
+RUN chmod +x ./*/*.sh
 
 #install requirements
 RUN pip install -r requirements-python.txt
