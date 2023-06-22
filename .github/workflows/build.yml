@@ -31,7 +31,7 @@ jobs:
       with:
         push: false
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/tools:ops-scripts
-    - name: Build and push on main
+    - name: Push Only on Main
       id: docker_build_push
       uses: docker/build-push-action@v2
       if: ${{ github.ref == 'refs/heads/main' }}
