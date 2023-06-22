@@ -13,7 +13,7 @@ bash compute-audio-space/run -s tests/data/void >/dev/null  || error
 echo "#2 dry run of 'reverse-audio'"
 bash reverse-audio/run -s tests/data/void >/dev/null || error
 echo "#3 dry run of 'browse-github'"
-GITHUB_TOKEN=xxx GITHUB_USERNAME=xxx bash browse-github/run -o xxx >/dev/null 2>/dev/null || error
+bash browse-github/run -o xxx >/dev/null 2>/dev/null || error
 echo "#3 check if no files modified"
 # shellcheck disable=SC2012
 checksum_2=$(ls -lnAR --time-style=+%s tests/data/void | md5sum|cut -d ' ' -f1)
