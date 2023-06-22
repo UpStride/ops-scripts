@@ -53,6 +53,16 @@ A docker image is built to ease the run of scripts herein on remote machines.
 
 The docker image is released on docker-hub: **marcelndeffo/tools:ops-scripts**
 
+- pull public docker image (no login)
 ````bash
 docker pull marcelndeffo/tools:ops-scripts
+````
+- open a bash terminal in the container (need a mount to add data to the container)
+````bash
+docker run -t -i marcelndeffo/tools:ops-scripts bash
+````
+- run the script into docker
+````bash
+root@d9efa96261a9:/src# browse-github/run -o facebook
+repos 127
 ````
