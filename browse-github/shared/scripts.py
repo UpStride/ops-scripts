@@ -20,12 +20,12 @@ def _auth():
     """
     auth method for request
     """
-    token = os.environ.get("GITHUB_TOKEN")
-    username = os.environ.get("GITHUB_USERNAME")
-    if token is None:
-        raise Exception('GITHUB_TOKEN missing in the env')
-    if username is None:
-        raise Exception('GITHUB_USERNAME missing in the env')
+    token = os.environ.get("GITHUB_TOKEN", "xxx")
+    username = os.environ.get("GITHUB_USERNAME", "xxx")
+    if token == "xxx":
+        logger.debug('GITHUB_TOKEN missing in the env')
+    if username == "xxx":
+        logger.debug('GITHUB_USERNAME missing in the env')
     login = f"{username}:{token}".encode()
     return {"Authorization": f"Basic {base64.b64encode(login)}"}
 

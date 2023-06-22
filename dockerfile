@@ -4,7 +4,7 @@ WORKDIR /src/
 
 #copy all sources to /src
 COPY . /src/
-RUN chmod +x ./*/*.sh
+RUN chmod +x /src/*/*.sh /src/*/run
 
 #install requirements
 RUN pip install -r requirements-python.txt
@@ -15,4 +15,3 @@ RUN apt install -y ffmpeg
 RUN ./tests/dry-run.sh
 RUN ./tests/compute-audio.sh
 RUN ./tests/browse-github.sh
-

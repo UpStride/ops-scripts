@@ -1,14 +1,14 @@
 # Ops Scripts
 [![Build Status](https://img.shields.io/github/actions/workflow/status/docker/buildx/build.yml?branch=master&label=build&logo=github&style=flat-square)](https://github.com/MarcelNasser/ops-script/actions?query=workflow%3Abuild)
 
-The philosophy of the repo is to provide handy scripts no more complex than a `curl` command. Please keep in mind, that these scripts here are executed on random machines with unsure environment.
+The philosophy of the repo is to provide handy scripts no more complex than a `curl` command. Please keep in mind, that scripts here are executed on random machines with unsure environments.
 The scripts must require minimum stuff to compile and run. 
 
 ## Practical example of the philosophy
 Let's take the example of a Python script.<br><br>
 Whenever you write a python script, we strongly recommend built-in libraries to external libraries. This avoids the introduction of an additional layer of complexity to the script compilation. 
-If you write your python script with only built-in libraries, the only requirement is that the python's version corresponds to the version you implemented and tested your script into.<br><br> 
-At the script's entrypoint, you must check if the python version is present on the machine. So your script has good chances to run smoothly on the random machine. If your script is not too complex even a compatible major version will do...
+If you write your python script with only built-in libraries, the only requirement is that the python's version corresponds to the version you implemented and tested your script.<br><br> 
+At the script's entrypoint, you must check if the python version is present on the machine. Therefore, your script has good chances to run smoothly on the given machine. If your script is not too complex even a compatible major version will do...
 
 ## Scripts structure 
 All scripts have the same structure:
@@ -44,9 +44,15 @@ There are additional readme files into scripts directory. Those readmes explain 
 
 ## Testing
 Tests Suite is written in Bash.
-- test case `dry-run.sh`: check if scripts are doing no harm for a dry-run or with dummy arguments 
-- test case `compute-audio.sh`: check if the transformation of audio files output files in expected type 
-
+- test case `dry-run.sh`: check if scripts are doing no harm for a dry-run
+- test case `compute-audio.sh`: check if the computation of audio files output files in expected types 
+- test case `browse-github.sh`: check 'docker' has at least 100 public repos on GitHub
 
 ## Build & Automation
-A docker image is built to ease the run of scripts herein on remote machines. The docker image is released on docker-hub:
+A docker image is built to ease the run of scripts herein on remote machines. 
+
+The docker image is released on docker-hub: **marcelndeffo/tools:ops-scripts**
+
+````bash
+docker pull marcelndeffo/tools:ops-scripts
+````
