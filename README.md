@@ -1,11 +1,11 @@
 # Ops Scripts
-[![Build Status](https://img.shields.io/github/actions/workflow/status/docker/buildx/build.yml?branch=master&label=build&logo=github&style=flat-square)](https://github.com/MarcelNasser/ops-script/actions?query=workflow%3Abuild)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/docker/buildx/build.yml?branch=main&label=build&logo=github&style=flat-square)](https://github.com/MarcelNasser/ops-script/actions?query=workflow%3Abuild)
 
 The philosophy of the repo is to provide handy scripts no more complex than a `curl` command. Please keep in mind, that scripts here are executed on random machines with unsure environments.
 The scripts must require minimum stuff to compile and run. 
 
 ## Practical example of the philosophy
-Let's take the example of a Python script.<br><br>
+Let's take example of a Python script.<br><br>
 Whenever you write a python script, we strongly recommend built-in libraries to external libraries. This avoids the introduction of an additional layer of complexity to the script compilation. 
 If you write your python script with only built-in libraries, the only requirement is that the python's version corresponds to the version you implemented and tested your script.<br><br> 
 At the script's entrypoint, you must check if the python version is present on the machine. Therefore, your script has good chances to run smoothly on the given machine. If your script is not too complex even a compatible major version will do...
