@@ -40,6 +40,7 @@ jobs:
 
   test:
     needs: build
+    if: ${{ github.ref != 'refs/heads/main' }}
     runs-on: ubuntu-latest
     container:
       image: marcelndeffo/tools:ops-scripts-${{ github.sha }}
@@ -48,6 +49,5 @@ jobs:
     steps:
       - name: Run Test Suite
         id: test_docker
-        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
           /src/tests/compute-audio-expensive.sh
