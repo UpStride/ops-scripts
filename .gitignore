@@ -3,4 +3,4 @@ venv/
 .fft/
 .reversed/
 .palindromic/
-
+*.y.wav

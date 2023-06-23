@@ -1,5 +1,7 @@
 FROM python:3.10-bullseye
 
+ENV VERBOSE='TRUE'
+
 WORKDIR /src/
 
 #copy all sources to /src

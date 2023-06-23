@@ -13,13 +13,30 @@ import matplotlib.pyplot as plot
 from scipy.io import wavfile
 import numpy
 
-COLORS_PALETTE = ["xkcd:reddish orange", "xkcd:lime green", "xkcd:sky blue",
-                  "xkcd:neon blue", "xkcd:umber", "xkcd:golden yellow"]
-LEN_COLORS = len(COLORS_PALETTE)
 THRESHOLD = 1.E-30
+FRACTAL_DIVISION_LIMIT = 0.1
 
 
-def transform_audio(opt):
+class Color:
+    COLORS_PALETTE = [
+        "xkcd:reddish orange", "xkcd:lime green",
+        "xkcd:sky blue", "xkcd:neon blue",
+        "xkcd:umber", "xkcd:golden yellow"
+    ]
+
+    def __init__(self):
+        self.index = -1
+        self.len = len(self.COLORS_PALETTE)
+
+    def next(self):
+        self.index += 1
+        return self.COLORS_PALETTE[self.index % self.len]
+
+
+color = Color()
+
+
+def fft_audio(opt):
     """
     in: opt: command line option object.
             Attributes:
@@ -28,11 +45,20 @@ def transform_audio(opt):
     """
     if opt.debug:
         logger.setLevel(DEBUG)
-    plot.figure(figsize=(20, 10))
+    _init_plot()
     # Plot in reverse order, so that the first fft is on top
     for i, a in enumerate(reversed(opt.audio)):
         logger.info(f"audio file: {a}")
-        _plot_audio(file_name=a, color=COLORS_PALETTE[i % LEN_COLORS])
+        rate, audio_data = _read_audio(a)
+        _plot_audio(rate=rate, audio_data=audio_data, label=a)
+    _end_plot(opt)
+
+
+def _init_plot():
+    plot.figure(figsize=(20, 10))
+
+
+def _end_plot(opt):
     plot.legend()
     plot.xlabel('Channel_Frequency (kHz)')
     plot.ylabel('Channel_Power (dB)')
@@ -61,22 +87,28 @@ def _scale_re(arr: numpy.array):
     return numpy.abs(numpy.real(arr)) / float(len(arr)) + THRESHOLD
 
 
-def _plot_audio(file_name, color):
+def _read_audio(file_name):
     try:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=WavFileWarning)
-            rate, audiodata = wavfile.read(file_name)
-    except FileNotFoundError as e:
-        logger.error(e)
-        return
-    n = len(audiodata)
-    if len(audiodata.shape) == 2:
-        amplitude = _scale(numpy.fft.fft(audiodata.sum(axis=1) / 2))
+            rate, audio_data = wavfile.read(file_name)
+            return rate, audio_data
+    except FileNotFoundError as error:
+        logger.error(error)
+        exit(2)
+    except Exception:
+        raise
+
+
+def _plot_audio(rate, audio_data, label):
+    n = len(audio_data)
+    if len(audio_data.shape) == 2:
+        amplitude = _scale(numpy.fft.fft(audio_data.sum(axis=1) / 2))
     else:
-        amplitude = _scale(numpy.fft.fft(audiodata))  # take the fourier transform of left channel
+        amplitude = _scale(numpy.fft.fft(audio_data))  # take the fourier transform of left channel
     freq = numpy.arange(0, n, 1.0) * (rate / n) / 1000
     logger.info(f"#_freq={n}, min_freq={freq[0]}(khz), max_freq={freq[-1]}(khz)")
-    plot.plot(freq, numpy.log10(amplitude), color=color, label=file_name)
+    plot.plot(freq, numpy.log10(amplitude), color=color.next(), label=label)
     return
 
 
@@ -88,7 +120,7 @@ if __name__ == "__main__":
     sub.add_argument("--show", "-s", help=f"show or hide plot", nargs=1, choices=['yes', 'no'], default='no')
     sub.add_argument("--debug", "-d", help=f"debug mode", action='store_true')
     sub.add_argument("--output", "-o", help=f"output fft", nargs="?", type=pathlib.Path)
-    sub.set_defaults(func=transform_audio)
+    sub.set_defaults(func=fft_audio)
     args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
     try:
         args.func(args)

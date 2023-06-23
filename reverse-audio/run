@@ -10,23 +10,29 @@ function usage() {
   "
 }
 
+function info() {
+  [ -n "$VERBOSE" ] && echo -e "$1" >&2 || return 0
+}
+
 source "$(dirname "$0")/shared/args.sh"
 
 #Dependencies check
-echo -e "+ dependencies check ..."
+info "+ dependencies check ..."
 ffmpeg -version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency ffmpeg\n"; exit 2; }
 
 #Check sources directory
 CWD=$PWD
 directory=$(realpath "$SOURCE_DIRECTORY")
 declare -i TOTAL=0
-echo -e "+ conversion loop (do not interrupt)"
+info "+ conversion loop (do not interrupt)"
 # shellcheck disable=SC2207
 LIST=($(cd "$directory" && find "." -maxdepth 1 -iname '*.wav'))
-[ -z "$LIST" ] && echo -e "x no audio files found" && exit 0
-echo -e "+ total audio files found: ${#LIST[@]}"
-cd "$directory" && [  ! -d "./.reversed/" ] && mkdir "./.reversed/"
-cd "$directory" && [  ! -d "./.palindromic/" ] && mkdir "./.palindromic/"
+[ -z "$LIST" ] && info "x no audio files found" && exit 0
+info "+ total audio files found: ${#LIST[@]}"
+[ -d "$directory/.reversed/" ] && { info "+ clearing .reversed directory"; rm -r "$directory/.reversed/"; }
+[ -d "$directory/.palindromic/" ] && { info "+ clearing .palindromic directory"; rm -r "$directory/.palindromic/"; }
+mkdir "$directory/.reversed/"
+mkdir "$directory/.palindromic/"
 #Reversion Loop
 cd "$directory" || exit 2
 for file in ${LIST[*]}; do
@@ -34,4 +40,4 @@ for file in ${LIST[*]}; do
     && ffmpeg -y -i "$file" -i "./.reversed/${file,,}" -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" "./.palindromic/${file,,}" >/dev/null 2>/dev/null \
     && TOTAL=$TOTAL+1 ; }
 done || cd "$CWD"
-echo -e "+ total audio files converted: $TOTAL"
+info "+ total audio files converted: $TOTAL"
