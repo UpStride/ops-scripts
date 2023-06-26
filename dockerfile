@@ -26,12 +26,13 @@ RUN chmod +x /src/*/*.sh /src/*/run
 #build
 #copying pyhton binaries
 RUN apt update
-RUN apt install -y python3 curl
+RUN apt install -y python3
 COPY --from=pre-build /venv /venv
 ENV PATH=/venv/bin:$PATH
 
-#unittest
+#unittests
 RUN VERBOSE='TRUE' ./tests/dry-run.sh
+RUN VERBOSE='TRUE' ./tests/compute-audio.sh
 
 #set entrypoint to bash
 ENTRYPOINT '/bin/sh'

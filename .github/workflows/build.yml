@@ -50,6 +50,5 @@ jobs:
       - name: Run Test Suite
         id: test_docker
         run: |
-          /src/tests/compute-audio-expensive.sh
-          /src/tests/compute-audio.sh
+          /src/tests/compute-audio-heavy.sh
           /src/tests/browse-github.sh
