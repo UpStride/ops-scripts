@@ -4,4 +4,3 @@ venv/
 .reversed/
 .palindromic/
 *.y.wav
-example_file.mp3.wav
