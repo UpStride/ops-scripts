@@ -1,0 +1,12 @@
+version: '3.2'
+
+services:
+
+  ops-scripts:
+    container_name: ops-scripts
+    image: marcelndeffo/tools:ops-scripts-local
+    build: .
+    restart: no
+    tty: true
+    stdin_open: true
+

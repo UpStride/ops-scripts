@@ -1,15 +1,8 @@
 #!/usr/bin/env bash
-# Test scripts are no making any harm for a dry run
-# generic error
-function error() {
-  echo "x failed" && exit 2;
-}
+# computation of fourier graph with sub-slicing
 
-function check_content(){
-  for file in $(find "$1" -maxdepth 1 -type f ); do
-     [ "$(file -b --mime-type "$file")" != "$2" ] && echo "$file is not of type $2" && error
-  done
-}
+# load utility functions
+source "$(dirname "$0")/utils.sh"
 
 ROOT_DIR="$(dirname "$0")"/..
 

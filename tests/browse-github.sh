@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# Test scripts are no making any harm for a dry run
-# generic error
-function error() {
-  echo "x failed" && exit 2;
-}
+# load utility functions
+source "$(dirname "$0")/utils.sh"
 
 # check 'docker' has at least 100 public repos on github
 echo "#0 'browse-github' of docker"

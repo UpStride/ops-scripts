@@ -1,4 +1,4 @@
-FROM python:3.10-bullseye
+FROM python:3.10.12-bullseye
 
 ENV VERBOSE='TRUE'
 
@@ -9,7 +9,10 @@ COPY . /src/
 RUN chmod +x /src/*/*.sh /src/*/run
 
 #install requirements
+# python
+#RUN pip install -U pip
 RUN pip install -r requirements-python.txt
+# audio
 RUN apt update
 RUN apt install -y ffmpeg
 

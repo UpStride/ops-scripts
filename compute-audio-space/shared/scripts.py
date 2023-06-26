@@ -45,7 +45,7 @@ def fft_audio(opt):
     """
     if opt.debug:
         logger.setLevel(DEBUG)
-    _init_plot()
+    _start_plot()
     # Plot in reverse order, so that the first fft is on top
     for i, a in enumerate(reversed(opt.audio)):
         logger.info(f"audio file: {a}")
@@ -54,7 +54,7 @@ def fft_audio(opt):
     _end_plot(opt)
 
 
-def _init_plot():
+def _start_plot():
     plot.figure(figsize=(20, 10))
 
 
