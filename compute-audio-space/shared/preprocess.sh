@@ -2,7 +2,7 @@ audio_files=$(realpath "$SOURCE_DIRECTORY")
 CWD=$PWD
 #Converting MP3/OGG files to wav
 info "=> checking MP3/OGG"
-MP3=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.ogg')
+MP3=$(cd "$audio_files" && find "." -maxdepth 1 -iname '*.mp3' -o -iname '*.ogg' -o -iname '*.m4a')
 [ -n "$MP3" ] && {
   info "+ converting MP3/OGG"
   for file in ${MP3[*]}; do
