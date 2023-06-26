@@ -75,8 +75,3 @@ root@d9efa96261a9:/src# exit
 ````bash
 docker build .
 ````
-
-- run a docker images with data (**for advanced testing**)
-````bash
-docker run -t -i marcelndeffo/tools:ops-scripts bash
-````
