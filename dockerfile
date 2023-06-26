@@ -1,18 +1,21 @@
 ### stage 1: building python
-FROM python:3.10-slim as pre-build
+FROM jrottenberg/ffmpeg:6.0-ubuntu as pre-build
 
 WORKDIR /src/
 
 #building python
 COPY requirements-python.txt .
+RUN apt update && apt install -y python3 python3-venv python3-pip
 RUN python3 -m venv /venv
 ENV PATH=/venv/bin:$PATH
 RUN pip install -r requirements-python.txt
 
 ### stage 2: final image
-FROM python:3.10-slim
+FROM jrottenberg/ffmpeg:6.0-ubuntu
 
-ENV VERBOSE='TRUE'
+USER root
+
+ENV VERBOSE ''
 
 WORKDIR /src/
 
@@ -22,13 +25,13 @@ RUN chmod +x /src/*/*.sh /src/*/run
 
 #build
 #copying pyhton binaries
+RUN apt update
+RUN apt install -y python3 curl
 COPY --from=pre-build /venv /venv
 ENV PATH=/venv/bin:$PATH
-#external programs
-RUN apt update
-RUN apt install -y file ffmpeg
 
-#test suite
-RUN ./tests/dry-run.sh
-RUN ./tests/compute-audio.sh
-RUN ./tests/browse-github.sh
+#unittest
+RUN VERBOSE='TRUE' ./tests/dry-run.sh
+
+#set entrypoint to bash
+ENTRYPOINT '/bin/sh'

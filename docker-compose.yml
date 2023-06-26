@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.7'
 
 services:
 
@@ -9,4 +9,7 @@ services:
     restart: no
     tty: true
     stdin_open: true
-
+    volumes:
+      - type: bind
+        source: $PWD/tests/data/audio  # Replace here with your source directory
+        target: /data/audio

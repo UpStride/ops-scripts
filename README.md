@@ -1,7 +1,7 @@
 # Ops Scripts
 [![Build Status](https://img.shields.io/github/actions/workflow/status/docker/buildx/build.yml?branch=master&label=build&logo=github&style=flat-square)](https://github.com/MarcelNasser/ops-script/actions?query=workflow%3Abuild)
 
-The philosophy of the repo is to provide handy scripts no more complex than a `curl` command. Please keep in mind, that scripts here are executed on random machines with unsure environments.
+The philosophy of the repo is to provide handy scripts no more complex than a `curl` command. Please keep in mind, the scripts are executed on random machines with unsure environments.
 The scripts must require minimum stuff to compile and run. 
 
 ## Practical example of the philosophy
@@ -68,10 +68,25 @@ root@d9efa96261a9:/src# browse-github/run -o facebook
 repos 127
 # do some stuff...
 root@d9efa96261a9:/src# tests/dry-run.sh
+root@d9efa96261a9:/src# tests/compute-audio-expensive.sh
 #exit
 root@d9efa96261a9:/src# exit
 ````
 - build and test your local changes (**must do this before all git push**)
 ````bash
-docker build .
+# build
+docker compose build
+# jump in the container for advanced testing
+docker compose run ops-scripts
+````
+
+- inside the docker container the filestructure is:
+````
+/src/
+ |__ script-a
+    |__ run
+ |__ script-b
+    |__ run
+/data/
+ |__ audio
 ````
