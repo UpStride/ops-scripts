@@ -1,0 +1,12 @@
+FROM jrottenberg/ffmpeg:6.0-ubuntu as pre-build
+
+RUN apt update
+
+#install python3 (standard version is 3.8)
+#3.9 available but installed under the binary name `python3.9` (disrupting dowstream scripts)
+#3.10 require a lot of stuff for proper install
+RUN apt install -y python3
+
+RUN apt clean
+
+ENTRYPOINT '/bin/sh'

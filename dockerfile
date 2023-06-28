@@ -1,17 +1,19 @@
 ### stage 1: building python
-FROM jrottenberg/ffmpeg:6.0-ubuntu as pre-build
+FROM marcelndeffo/tools:ffmpeg-weekly as pre-build
 
 WORKDIR /src/
 
 #building python
-COPY requirements-python.txt .
-RUN apt update && apt install -y python3 python3-venv python3-pip
+#python virtual env
+RUN apt install -y python3-venv
 RUN python3 -m venv /venv
 ENV PATH=/venv/bin:$PATH
+#sources dependencies
+COPY requirements-python.txt .
 RUN pip install -r requirements-python.txt
 
 ### stage 2: final image
-FROM jrottenberg/ffmpeg:6.0-ubuntu
+FROM marcelndeffo/tools:ffmpeg-weekly
 
 USER root
 
@@ -24,9 +26,7 @@ COPY . /src/
 RUN chmod +x /src/*/*.sh /src/*/run
 
 #build
-#copying pyhton binaries
-RUN apt update
-RUN apt install -y python3
+#copying python binaries
 COPY --from=pre-build /venv /venv
 ENV PATH=/venv/bin:$PATH
 
