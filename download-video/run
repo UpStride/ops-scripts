@@ -19,8 +19,7 @@ echo -e "+ dependencies check ..."
 
 #Dependencies check
 python --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency python3\n:  sudo apt install python"; exit 2; }
-ffmpeg -version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency ffmpeg\n"; exit 2; }
-youtube-dl --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency youtube-dl\n:  pip install youtube-dl"; exit 2; }
+yt-dlp --version >/dev/null 2>/dev/null || { echo -e "xxx missing dependency youtube-dl\n:  pip install -U yt-dlp"; exit 2; }
 
 #Check input
 
@@ -36,7 +35,7 @@ declare -i TOTAL=0
 
 echo -e "+ download loop (do not interrupt)"
 for url in ${LIST[*]}; do
-  { cd "$directory" && youtube-dl -cwix -f bestvideo+bestaudio "$url" >/dev/null && TOTAL=$TOTAL+1 ;} || cd "$CWD"
+  { cd "$directory" && yt-dlp -f "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" "$url" >/dev/null && TOTAL=$TOTAL+1 ;} || cd "$CWD"
 done
 echo -e "+ total=$TOTAL"
 
