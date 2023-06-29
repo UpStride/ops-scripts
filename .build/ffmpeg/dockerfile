@@ -1,4 +1,4 @@
-FROM jrottenberg/ffmpeg:6.0-ubuntu as pre-build
+FROM jrottenberg/ffmpeg:6.0-ubuntu
 
 RUN apt update
 
