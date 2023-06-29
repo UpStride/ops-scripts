@@ -25,6 +25,6 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v3
       with:
-        context: "{{defaultContext}}:.build/ffmpeg"
+        context: "{{defaultContext}}:.build/dvc"
         push: true
         tags: marcelndeffo/tools:dvc-monthly
