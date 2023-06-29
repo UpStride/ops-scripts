@@ -5,3 +5,4 @@ venv/
 .palindromic/
 *.y.wav
 example_file.mp3.wav
+tests/data/audio/special-cases/a'a a.wav
